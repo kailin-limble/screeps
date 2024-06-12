@@ -1,0 +1,58 @@
+
+    // constants
+    let MODELS = {
+        WORKER: [WORK, CARRY, MOVE],
+        GARRISON: [TOUGH, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE],
+        INQUISITOR: [TOUGH, TOUGH, ATTACK, ATTACK, MOVE],
+        MEDIC: [TOUGH, HEAL, MOVE],
+        ARTILLERY: [TOUGH, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE],
+        TANK: [TOUGH, TOUGH, MOVE, ATTACK, ATTACK, MOVE],
+    }
+
+    function multiplyModel(model, multiple) {
+        let multipliedModel = []
+        for(let i=0; i<multiple; i++) {
+            if(multipliedModel.length + model.length > 50) {
+                break;
+            }
+            else {
+                multipliedModel = multipliedModel.concat(model)
+            }
+        }
+        return multipliedModel
+    }
+
+    function getSpawnCost(model) {
+        let cost = 0
+        for(let part of model) {
+            cost += BODYPART_COST[part]
+        }
+        return cost
+    }
+
+    function getBiggestPossibleModel(model) {
+        let spawnEnergyCapcity = Game.spawns['Spawn1'].store.getCapacity(RESOURCE_ENERGY)
+        let cost = getSpawnCost(model)
+        let multipier = Math.floor(spawnEnergyCapcity / cost)
+        let biggestModel = multiplyModel(model, multipier)
+        biggestModel.sort((x,y) => { 
+            if(x == y) {
+                return 0
+            }
+            else if(x == TOUGH) {
+                return -1
+            }
+            else if(y == TOUGH) {
+                return 1
+            }
+            else {
+                return 0
+            }
+        });
+        return biggestModel
+    }
+
+    function spawnBiggestCreepOfModel(model, memory) {
+        let randomizedName = `${memory.model ?? '_'}-${memory.role ?? '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
+        let spawnStatus = Game.spawns['Spawn1'].spawnCreep(getBiggestPossibleModel(model), randomizedName, {memory: memory});
+    }
