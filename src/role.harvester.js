@@ -4,11 +4,15 @@ var roleHarvester = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
+        
+	    if(creep.memory.depositing && creep.store[RESOURCE_ENERGY] == 0) {
+            creep.memory.depositing = false;
+	    }
+	    if(!creep.memory.depositing && creep.store.getFreeCapacity() == 0) {
+	        creep.memory.depositing = true;
+	    }
 
-	    if(creep.store.getFreeCapacity() > 0) {
-            roleHelper.smartHarvest(creep)
-        }
-        else {
+	    if(creep.memory.depositing) {
             var targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_EXTENSION ||
@@ -26,7 +30,11 @@ var roleHarvester = {
                     }
                 }
             }
-        }
+            creep.say('📥');
+	    }
+	    else {
+            roleHelper.smartHarvest(creep)
+	    }
 	}
 };
 

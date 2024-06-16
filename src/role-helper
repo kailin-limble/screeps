@@ -43,6 +43,9 @@ class RoleHelper {
             if(moveErrCode == ERR_NO_PATH) {
                 console.log("source inaccesible")
             }
+            else {
+	            creep.say('⛏️');
+            }
         }
     }
 }

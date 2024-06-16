@@ -31,7 +31,7 @@ class SpawnHelper {
     }
 
     getBiggestPossibleModel(model) {
-        let spawnEnergyCapcity = Game.spawns['Spawn1'].store.getCapacity(RESOURCE_ENERGY)
+        let spawnEnergyCapcity = Game.spawns['Spawn1'].room.energyCapacityAvailable
         let cost = this.getSpawnCost(model)
         let multipier = Math.floor(spawnEnergyCapcity / cost)
         let biggestModel = this.multiplyModel(model, multipier)

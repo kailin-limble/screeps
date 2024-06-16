@@ -62,9 +62,9 @@ module.exports.loop = function () {
 
     // value 0 to 1; 1 is highest priority
     function setSpawnPriority() {
-        spawnPriority.workerHarvester.priority = 1 - (creepHarvesterCount/5)
-        spawnPriority.workerBuilder.priority = (1 - (creepBuilderCount/5)) * 0.75
-        spawnPriority.workerUpgrader.priority = 1 - (creepUpgraderCount/5)
+        spawnPriority.workerHarvester.priority = 1 - (creepHarvesterCount/3)
+        spawnPriority.workerBuilder.priority = (1 - (creepBuilderCount/3)) * 0.75
+        spawnPriority.workerUpgrader.priority = 1 - (creepUpgraderCount/3)
         spawnPriority.garrison.priority = Math.random() * 0.25
         spawnPriority.inquisitor.priority = Math.random() * 0.25
     }
