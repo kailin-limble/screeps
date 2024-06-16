@@ -24,6 +24,10 @@ var roleHarvester = {
             return false
         }
 
+        function isSafeLocation(pos) {
+            return pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0
+        }
+
 	    if(creep.store.getFreeCapacity() > 0) {
             var sources = creep.room.find(FIND_SOURCES);
 
@@ -36,8 +40,8 @@ var roleHarvester = {
             }
 
             if(harvestErrCode == ERR_NOT_IN_RANGE) {
-                let unoccupiedSources = sources.filter(source => hasAdjacentOpenning(source))
-                let closestSource = creep.pos.findClosestByPath(unoccupiedSources)
+                let safeAndUnoccupiedSources = sources.filter(source => hasAdjacentOpenning(source) && isSafeLocation(source.pos))
+                let closestSource = creep.pos.findClosestByPath(safeAndUnoccupiedSources)
                 let moveErrCode = creep.moveTo(closestSource, {reusePath: 5, visualizePathStyle: {stroke: '#ffaa00'}})
                 if(moveErrCode != ERR_NO_PATH) {
                     console.log("source inaccesible")
