@@ -1,48 +1,48 @@
 let map = {
     // spawns can't be placed programmatically
-    spawn: [
+    [STRUCTURE_SPAWN]: [
         [25,25],
     ],
-    extension: [
+    [STRUCTURE_EXTENSION]: [
         [25,22], 
         [25,21], 
         [24,21],
         [24,22],
         [25,18], 
     ],
-    road: [
+    [STRUCTURE_ROAD]: [
     ],
-    constructedWall: [
+    [STRUCTURE_WALL]: [
     ],
-    rampart: [
+    [STRUCTURE_RAMPART]: [
     ],
-    portal: [
+    [STRUCTURE_PORTAL]: [
     ],
-    controller: [
+    [STRUCTURE_CONTROLLER]: [
     ],
-    link: [
+    [STRUCTURE_LINK]: [
     ],
-    storage: [
+    [STRUCTURE_STORAGE]: [
     ],
-    tower: [
+    [STRUCTURE_TOWER]: [
     ],
-    observer: [
+    [STRUCTURE_OBSERVER]: [
     ],
-    powerBank: [
+    [STRUCTURE_POWER_BANK]: [
     ],
-    powerSpawn: [
+    [STRUCTURE_POWER_SPAWN]: [
     ],
-    extractor: [
+    [STRUCTURE_EXTRACTOR]: [
     ],
-    lab: [
+    [STRUCTURE_LAB]: [
     ],
-    terminal: [
+    [STRUCTURE_TERMINAL]: [
     ],
-    container: [
+    [STRUCTURE_CONTAINER]: [
     ],
-    kuker: [
+    [STRUCTURE_NUKER]: [
     ],
-    factory: [
+    [STRUCTURE_FACTORY]: [
     ]
 }
 

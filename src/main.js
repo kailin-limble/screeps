@@ -2,66 +2,9 @@ var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
 var constructionMap = require('construction-map');
+var spawnHelper = require('spawn-helper');
 
 module.exports.loop = function () {
-
-    // constants
-    let MODELS = {
-        WORKER: [WORK, CARRY, MOVE],
-        GARRISON: [TOUGH, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE],
-        INQUISITOR: [TOUGH, TOUGH, ATTACK, ATTACK, MOVE],
-        MEDIC: [TOUGH, HEAL, MOVE],
-        ARTILLERY: [TOUGH, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE],
-        TANK: [TOUGH, TOUGH, MOVE, ATTACK, ATTACK, MOVE],
-    }
-
-    function multiplyModel(model, multiple) {
-        let multipliedModel = []
-        for(let i=0; i<multiple; i++) {
-            if(multipliedModel.length + model.length > 50) {
-                break;
-            }
-            else {
-                multipliedModel = multipliedModel.concat(model)
-            }
-        }
-        return multipliedModel
-    }
-
-    function getSpawnCost(model) {
-        let cost = 0
-        for(let part of model) {
-            cost += BODYPART_COST[part]
-        }
-        return cost
-    }
-
-    function getBiggestPossibleModel(model) {
-        let spawnEnergyCapcity = Game.spawns['Spawn1'].store.getCapacity(RESOURCE_ENERGY)
-        let cost = getSpawnCost(model)
-        let multipier = Math.floor(spawnEnergyCapcity / cost)
-        let biggestModel = multiplyModel(model, multipier)
-        biggestModel.sort((x,y) => { 
-            if(x == y) {
-                return 0
-            }
-            else if(x == TOUGH) {
-                return -1
-            }
-            else if(y == TOUGH) {
-                return 1
-            }
-            else {
-                return 0
-            }
-        });
-        return biggestModel
-    }
-
-    function spawnBiggestCreepOfModel(model, memory) {
-        let randomizedName = `${memory.model ?? '_'}-${memory.role ?? '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
-        let spawnStatus = Game.spawns['Spawn1'].spawnCreep(getBiggestPossibleModel(model), randomizedName, {memory: memory});
-    }
 
     // filter creeps by matching memory; this is an AND filter
     function getCreepsByMemory(memoryFilter) {
@@ -89,20 +32,54 @@ module.exports.loop = function () {
     }
 
     // init creeps
-    let creepCount = Object.keys(Game.creeps).length
-    let creepHarvesterCount = Object.keys(getCreepsByMemory({role: 'harvester'})).length
-    let creepBuilderCount = Object.keys(getCreepsByMemory({role: 'builder'})).length
-    let creepUpgraderCount = Object.keys(getCreepsByMemory({role: 'upgrader'})).length
+    let spawnPriority = {
+        workerBuilder: {
+            priority: 0,
+            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.WORKER, {model: 'WORKER', role: 'builder'})
+        },
+        workerUpgrader: {
+            priority: 0,
+            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.WORKER, {model: 'WORKER', role: 'upgrader'})
+        },
+        workerHarvester: {
+            priority: 0,
+            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
+        },
+        garrison: {
+            priority: 0,
+            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.GARRISON, {model: 'GARRISON', role: 'sentry'})
+        },
+        inquisitor: {
+            priority: 0,
+            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.INQUISITOR, {model: 'INQUISITOR', role: 'sentry'})
+        },
+    }
 
-    if(creepHarvesterCount < 2) {
-        spawnBiggestCreepOfModel(MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
+    let creepCount = Object.keys(Game.creeps).length
+    let creepHarvesterCount = Object.keys(getCreepsByMemory({model: 'WORKER', role: 'harvester'})).length
+    let creepBuilderCount = Object.keys(getCreepsByMemory({model: 'WORKER', role: 'builder'})).length
+    let creepUpgraderCount = Object.keys(getCreepsByMemory({model: 'WORKER', role: 'upgrader'})).length
+
+    // value 0 to 1; 1 is highest priority
+    function setSpawnPriority() {
+        spawnPriority.workerHarvester.priority = 1 - (creepHarvesterCount/5)
+        spawnPriority.workerBuilder.priority = (1 - (creepBuilderCount/5)) * 0.75
+        spawnPriority.workerUpgrader.priority = 1 - (creepUpgraderCount/5)
+        spawnPriority.garrison.priority = Math.random() * 0.25
+        spawnPriority.inquisitor.priority = Math.random() * 0.25
     }
-    if(creepBuilderCount < 2) {
-        spawnBiggestCreepOfModel(MODELS.WORKER, {model: 'WORKER', role: 'builder'})
+
+    function getKeyOfHighestPriorityNotZero() {
+        setSpawnPriority()
+        let key = Object.keys(spawnPriority).reduce((a, b) => spawnPriority[a].priority > spawnPriority[b].priority ? a : b);
+        if(spawnPriority[key].priority <= 0) {
+            return null
+        }
+        return key
     }
-    if(creepUpgraderCount < 2) {
-        spawnBiggestCreepOfModel(MODELS.WORKER, {model: 'WORKER', role: 'upgrader'})
-    }
+    
+    let keyOfHighestPriorityNotZero = getKeyOfHighestPriorityNotZero()
+    spawnPriority[keyOfHighestPriorityNotZero]?.action()
 
     // assign roles to towers
     var tower = Game.getObjectById<Creep>('d103f691f617d618766dce0a');
