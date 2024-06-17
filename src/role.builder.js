@@ -13,13 +13,16 @@ var roleBuilder = {
 	    }
 
 	    if(creep.memory.building) {
+			//build
 	        var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
             if(targets.length) {
                 if(creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffff00'}});
                 }
+				creep.say('🚧');
             }
 			
+			//repair
 	        var myStructures = creep.room.find(FIND_MY_STRUCTURES);
 	        var walls = creep.room.find(FIND_STRUCTURES, {filter: (structure) => structure.structureType == STRUCTURE_WALL});
 	        var repairTargets = myStructures.concat(walls).filter((target) => (target.hits ?? 0) < (target.hitsMax ?? 0))
@@ -45,10 +48,10 @@ var roleBuilder = {
 
             if(repairTarget != null) {
                 if(creep.repair(repairTarget) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(repairTarget, {visualizePathStyle: {stroke: '#ffffff'}});
+                    creep.moveTo(repairTarget, {visualizePathStyle: {stroke: '#7777ff'}});
                 }
+				creep.say('🔧');
             }
-            creep.say('🚧');
 	    }
 	    else {
             roleHelper.smartHarvest(creep)

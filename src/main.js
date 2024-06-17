@@ -5,6 +5,19 @@ var constructionMap = require('construction-map');
 var spawnHelper = require('spawn-helper');
 
 module.exports.loop = function () {
+    // benchmark
+    if(Memory.tickCount == null) {
+        Memory.tickCount = 0
+    }
+    else {
+        // if(Game.memory.tickCount == 1200) {
+            console.log("|||||| tick", Memory.tickCount)
+            console.log("|||||| level", Game.rooms.sim.controller.level)
+            console.log("|||||| progress", Game.rooms.sim.controller.progress)
+            console.log("|||||| population", Game.creeps.length)
+        // }
+        Memory.tickCount++
+    }
 
     // filter creeps by matching memory; this is an AND filter
     function getCreepsByMemory(memoryFilter) {

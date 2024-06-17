@@ -21,6 +21,7 @@ var roleHarvester = {
                             structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                 }
             });
+
             if(targets.length > 0) {
                 for(let target of targets) {
                     if(creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
@@ -29,8 +30,14 @@ var roleHarvester = {
                         }
                     }
                 }
+                creep.say('📥');
             }
-            creep.say('📥');
+            else {
+                if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#770077'}});
+                }
+                creep.say('⬆️');
+            }
 	    }
 	    else {
             roleHelper.smartHarvest(creep)
