@@ -14,7 +14,7 @@ module.exports.loop = function () {
             console.log("|||||| tick", Memory.tickCount)
             console.log("|||||| level", Game.rooms.sim.controller.level)
             console.log("|||||| progress", Game.rooms.sim.controller.progress)
-            console.log("|||||| population", Game.creeps.length)
+            console.log("|||||| population", Object.keys(Game.creeps).length)
         }
         Memory.tickCount++
     }
