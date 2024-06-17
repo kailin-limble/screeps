@@ -10,7 +10,7 @@ module.exports.loop = function () {
         Memory.tickCount = 0
     }
     else {
-        if(Memory.tickCount == 1200) {
+        if(Memory.tickCount % 300 == 0) {
             console.log("|||||| tick", Memory.tickCount)
             console.log("|||||| level", Game.rooms.sim.controller.level)
             console.log("|||||| progress", Game.rooms.sim.controller.progress)
