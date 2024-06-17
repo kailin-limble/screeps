@@ -10,12 +10,12 @@ module.exports.loop = function () {
         Memory.tickCount = 0
     }
     else {
-        // if(Game.memory.tickCount == 1200) {
+        if(Game.memory.tickCount == 1200) {
             console.log("|||||| tick", Memory.tickCount)
             console.log("|||||| level", Game.rooms.sim.controller.level)
             console.log("|||||| progress", Game.rooms.sim.controller.progress)
             console.log("|||||| population", Game.creeps.length)
-        // }
+        }
         Memory.tickCount++
     }
 
