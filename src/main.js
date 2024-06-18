@@ -1,7 +1,7 @@
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
-var rolePolice = require('role.police');
+var roleSecurity = require('role.security');
 var constructionMap = require('construction-map');
 var spawnHelper = require('spawn-helper');
 
@@ -59,13 +59,13 @@ module.exports.loop = function () {
             priority: 0,
             action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
         },
-        garrison: {
+        range: {
             priority: 0,
-            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.GARRISON, {model: 'GARRISON', role: 'police'})
+            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.RANGE, {model: 'RANGE', role: 'security'})
         },
-        inquisitor: {
+        melee: {
             priority: 0,
-            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.INQUISITOR, {model: 'INQUISITOR', role: 'police'})
+            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.MELEE, {model: 'MELEE', role: 'security'})
         },
     }
 
@@ -73,15 +73,15 @@ module.exports.loop = function () {
     let creepHarvesterCount = Object.keys(getCreepsByMemory({model: 'WORKER', role: 'harvester'})).length
     let creepBuilderCount = Object.keys(getCreepsByMemory({model: 'WORKER', role: 'builder'})).length
     let creepUpgraderCount = Object.keys(getCreepsByMemory({model: 'WORKER', role: 'upgrader'})).length
-    let creepPoliceCount = Object.keys(getCreepsByMemory({role: 'police'})).length
+    let creepSecurityCount = Object.keys(getCreepsByMemory({role: 'security'})).length
 
     // value 0 to 1; 1 is highest priority
     function setSpawnPriority() {
         spawnPriority.workerHarvester.priority = 1 - (creepHarvesterCount/3)
         spawnPriority.workerBuilder.priority = (1 - (creepBuilderCount/4)) * 0.75
         spawnPriority.workerUpgrader.priority = 1 - (creepUpgraderCount/3)
-        spawnPriority.garrison.priority = Math.random() * 0.25
-        spawnPriority.inquisitor.priority = Math.random() * 0.15
+        spawnPriority.range.priority = Math.random() * 0.25
+        spawnPriority.melee.priority = Math.random() * 0.15
     }
 
     function getKeyOfHighestPriorityNotZero() {
@@ -125,15 +125,17 @@ module.exports.loop = function () {
             roleBuilder.run(creep);
         }
         
-        if(Memory.policeAction == null || !Memory.policeAction) {
-            Memory.policeAction = creepPoliceCount >= 5
+        if(Memory.securityAction == null || !Memory.securityAction) {
+            Memory.securityAction = creepSecurityCount >= 10
         }
         else {
-            Memory.policeAction = creepPoliceCount != 0
+            Memory.securityAction = creepSecurityCount != 1
         }
-        console.log("-----", Memory.policeAction)
-        if(Memory.policeAction && creep.memory.role == 'police') {
-            rolePolice.run(creep);
+        if(Memory.securityAction && creep.memory.role == 'security') {
+            roleSecurity.runExterminate(creep);
+        }
+        if(!Memory.securityAction && creep.memory.role == 'security') {
+            roleSecurity.runPatrol(creep);
         }
     }
 }

@@ -39,7 +39,7 @@ class RoleHelper {
         if(harvestErrCode == ERR_NOT_IN_RANGE) {
             let safeAndUnoccupiedSources = sources.filter(source => this.hasAdjacentOpenning(source) && this.isSafeLocation(source.pos))
             let closestSource = creep.pos.findClosestByPath(safeAndUnoccupiedSources)
-            let moveErrCode = creep.moveTo(closestSource, {reusePath: 10, visualizePathStyle: {stroke: '#777777'}})
+            let moveErrCode = creep.moveTo(closestSource, {reusePath: 5, visualizePathStyle: {stroke: '#777777'}})
             if(moveErrCode == ERR_NO_PATH) {
                 console.log("source inaccesible")
 	            creep.say('❌');

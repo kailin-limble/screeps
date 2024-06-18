@@ -31,10 +31,10 @@ var roleBuilder = {
 					if(target.hits < 100) {
 						return 0
 					}
-					else if(target.hits / target.hitsMax > 0.50 && target.hits / target.hitsMax < 1.00) {
+					else if(target.hits / target.hitsMax < 0.25 && target.hits < 9900) {
 						return 1
 					}
-					else if(target.hits < 30000) {
+					else if(target.hits < 99900) {
 						return 2
 					}
 					else {
@@ -48,7 +48,7 @@ var roleBuilder = {
 
             if(repairTarget != null) {
                 if(creep.repair(repairTarget) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(repairTarget, {visualizePathStyle: {stroke: '#7777ff'}});
+                    creep.moveTo(repairTarget, {reusePath: 5, visualizePathStyle: {stroke: '#7777ff'}});
                 }
 				creep.say('🔧');
             }
