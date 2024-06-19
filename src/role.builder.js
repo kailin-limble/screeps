@@ -52,6 +52,12 @@ var roleBuilder = {
                 }
 				creep.say('🔧');
             }
+            else {
+                if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(creep.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
+                }
+                creep.say('⬆️');
+            }
 	    }
 	    else {
             roleHelper.smartHarvest(creep)

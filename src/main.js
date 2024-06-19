@@ -73,15 +73,17 @@ module.exports.loop = function () {
     let creepHarvesterCount = Object.keys(getCreepsByMemory({model: 'WORKER', role: 'harvester'})).length
     let creepBuilderCount = Object.keys(getCreepsByMemory({model: 'WORKER', role: 'builder'})).length
     let creepUpgraderCount = Object.keys(getCreepsByMemory({model: 'WORKER', role: 'upgrader'})).length
-    let creepSecurityCount = Object.keys(getCreepsByMemory({role: 'security'})).length
+    let creepRangeCount = Object.keys(getCreepsByMemory({model: 'RANGE', role: 'security'})).length
+    let creepMeleeCount = Object.keys(getCreepsByMemory({model: 'MELEE', role: 'security'})).length
+    let creepSecurityCount = creepRangeCount + creepMeleeCount
 
     // value 0 to 1; 1 is highest priority
     function setSpawnPriority() {
         spawnPriority.workerHarvester.priority = 1 - (creepHarvesterCount/3)
         spawnPriority.workerBuilder.priority = (1 - (creepBuilderCount/4)) * 0.75
         spawnPriority.workerUpgrader.priority = 1 - (creepUpgraderCount/3)
-        spawnPriority.range.priority = Math.random() * 0.25
-        spawnPriority.melee.priority = Math.random() * 0.15
+        spawnPriority.range.priority = (1 - (creepRangeCount/16)) * 0.25
+        spawnPriority.melee.priority = (1 - (creepMeleeCount/8)) * 0.25
     }
 
     function getKeyOfHighestPriorityNotZero() {
