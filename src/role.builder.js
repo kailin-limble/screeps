@@ -1,30 +1,29 @@
-var roleHelper = require('role-helper');
+var Worker = require('role-helper');
 
-var roleBuilder = {
+class Builder extends Worker {
 
-    /** @param {Creep} creep **/
-    run: function(creep) {
+    run() {
 
-	    if(creep.memory.building && creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.building = false;
+	    if(this.memory.building && this.store[RESOURCE_ENERGY] == 0) {
+            this.memory.building = false;
 	    }
-	    if(!creep.memory.building && creep.store.getFreeCapacity() == 0) {
-	        creep.memory.building = true;
+	    if(!this.memory.building && this.store.getFreeCapacity() == 0) {
+	        this.memory.building = true;
 	    }
 
-	    if(creep.memory.building) {
+	    if(this.memory.building) {
 			//build
-	        var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+	        var targets = this.room.find(FIND_CONSTRUCTION_SITES);
             if(targets.length) {
-                if(creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffff00'}});
+                if(this.build(targets[0]) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffff00'}});
                 }
-				creep.say('🚧');
+				this.say('🚧');
             }
 			
 			//repair
-	        var myStructures = creep.room.find(FIND_MY_STRUCTURES);
-	        var walls = creep.room.find(FIND_STRUCTURES, {filter: (structure) => structure.structureType == STRUCTURE_WALL});
+	        var myStructures = this.room.find(FIND_MY_STRUCTURES);
+	        var walls = this.room.find(FIND_STRUCTURES, {filter: (structure) => structure.structureType == STRUCTURE_WALL});
 	        var repairTargets = myStructures.concat(walls).filter((target) => (target.hits ?? 0) < (target.hitsMax ?? 0))
 			repairTargets.sort((a, b) => {
 				function getPriority(target) {
@@ -44,25 +43,25 @@ var roleBuilder = {
 				return getPriority(a) - getPriority(b)
 			})
 
-			let repairTarget = creep.pos.findClosestByPath(repairTargets.slice(0, 5))
+			let repairTarget = this.pos.findClosestByPath(repairTargets.slice(0, 5))
 
             if(repairTarget != null) {
-                if(creep.repair(repairTarget) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(repairTarget, {reusePath: 5, visualizePathStyle: {stroke: '#7777ff'}});
+                if(this.repair(repairTarget) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(repairTarget, {reusePath: 5, visualizePathStyle: {stroke: '#7777ff'}});
                 }
-				creep.say('🔧');
+				this.say('🔧');
             }
             else {
-                if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(creep.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
+                if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(this.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
                 }
-                creep.say('⬆️');
+                this.say('⬆️');
             }
 	    }
 	    else {
-            roleHelper.smartHarvest(creep)
+            this.smartHarvest()
 	    }
 	}
 };
 
-module.exports = roleBuilder;
+module.exports = Builder;

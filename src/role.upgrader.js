@@ -1,27 +1,26 @@
-var roleHelper = require('role-helper');
+var Worker = require('role-helper');
 
-var roleUpgrader = {
+class Upgrader extends Worker {
 
-    /** @param {Creep} creep **/
-    run: function(creep) {
+    run() {
 
-        if(creep.memory.upgrading && creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.upgrading = false;
+        if(this.memory.upgrading && this.store[RESOURCE_ENERGY] == 0) {
+            this.memory.upgrading = false;
 	    }
-	    if(!creep.memory.upgrading && creep.store.getFreeCapacity() == 0) {
-	        creep.memory.upgrading = true;
+	    if(!this.memory.upgrading && this.store.getFreeCapacity() == 0) {
+	        this.memory.upgrading = true;
 	    }
 
-	    if(creep.memory.upgrading) {
-            if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
+	    if(this.memory.upgrading) {
+            if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
+                this.moveTo(this.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
             }
-            creep.say('⬆️');
+            this.say('⬆️');
         }
         else {
-            roleHelper.smartHarvest(creep)
+            this.smartHarvest()
         }
 	}
 };
 
-module.exports = roleUpgrader;
+module.exports = Upgrader;

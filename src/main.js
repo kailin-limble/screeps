@@ -1,7 +1,7 @@
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-var roleBuilder = require('role.builder');
-var roleSecurity = require('role.security');
+var Harvester = require('role.harvester');
+var Upgrader = require('role.upgrader');
+var Builder = require('role.builder');
+var Security = require('role.security');
 var constructionMap = require('construction-map');
 var spawnHelper = require('spawn-helper');
 
@@ -118,13 +118,16 @@ module.exports.loop = function () {
     for(var name in Game.creeps) {
         var creep = Game.creeps[name];
         if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
+            Object.assign(creep, Harvester)
+            creep.run()
         }
         if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
+            creep.run = Upgrader.prototype.run
+            creep.run()
         }
         if(creep.memory.role == 'builder') {
-            roleBuilder.run(creep);
+            creep.run = Builder.prototype.run
+            creep.run()
         }
         
         if(Memory.securityAction == null || !Memory.securityAction) {
@@ -134,10 +137,12 @@ module.exports.loop = function () {
             Memory.securityAction = creepSecurityCount != 1
         }
         if(Memory.securityAction && creep.memory.role == 'security') {
-            roleSecurity.runExterminate(creep);
+            creep.run = Security.prototype.runPatrol
+            creep.runPatrol()
         }
         if(!Memory.securityAction && creep.memory.role == 'security') {
-            roleSecurity.runPatrol(creep);
+            creep.run = Security.prototype.runPatrol
+            creep.runPatrol()
         }
     }
 }

@@ -1,32 +1,31 @@
-var roleSecurity = {
+class Security extends Creep {
 
-    /** @param {Creep} creep **/
-    runExterminate: function(creep) {
+    runExterminate() {
 
-        let hostileCreep = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
-        let hostileStructure = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
+        let hostileCreep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+        let hostileStructure = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
 
         let hostile = hostileCreep ?? hostileStructure
 
         if(hostile != null && hostile.hits != null) {
-            if(creep.attack(hostile) == ERR_NOT_IN_RANGE || creep.rangedAttack(hostile) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(hostile, {reusePath: 5, visualizePathStyle: {stroke: '#ff0000'}});
+            if(this.attack(hostile) == ERR_NOT_IN_RANGE || this.rangedAttack(hostile) == ERR_NOT_IN_RANGE) {
+                this.moveTo(hostile, {reusePath: 5, visualizePathStyle: {stroke: '#ff0000'}});
             }
-            creep.say('🔫');
+            this.say('🔫');
         }
         else {
-            if(creep.memory.dest == null || Math.random() < 0.02) {
-                creep.memory.dest = new RoomPosition(Math.floor(Math.random()*50), Math.floor(Math.random()*50), creep.pos.roomName)
+            if(this.memory.dest == null || Math.random() < 0.02) {
+                this.memory.dest = new RoomPosition(Math.floor(Math.random()*50), Math.floor(Math.random()*50), this.pos.roomName)
             }
-            creep.moveTo(creep.memory.dest.x, creep.memory.dest.y, {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-            creep.say('💤');
+            this.moveTo(this.memory.dest.x, this.memory.dest.y, {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+            this.say('💤');
         }
-	},
+	}
 
-    runPatrol: function(creep) {
+    runPatrol() {
 
-        let hostileCreeps = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 5)
-        let hostileStructures = creep.pos.findInRange(FIND_HOSTILE_STRUCTURES, 5).filter(structure => structure.hits != null)
+        let hostileCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, 5)
+        let hostileStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, 5).filter(structure => structure.hits != null)
 
         let weakestHostile = [...hostileCreeps, ...hostileStructures].reduce(
             (prevHostile, hostile) => {
@@ -42,19 +41,19 @@ var roleSecurity = {
         )
 
         if(weakestHostile != null) {
-            if(creep.attack(weakestHostile) == ERR_NOT_IN_RANGE || creep.rangedAttack(weakestHostile) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
+            if(this.attack(weakestHostile) == ERR_NOT_IN_RANGE || this.rangedAttack(weakestHostile) == ERR_NOT_IN_RANGE) {
+                this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
             }
-            creep.say('🔫');
+            this.say('🔫');
         }
         else {
-            if(creep.memory.dest == null || Math.random() < 0.02) {
-                creep.memory.dest = new RoomPosition(Math.floor(Math.random()*50), Math.floor(Math.random()*50), creep.pos.roomName)
+            if(this.memory.dest == null || Math.random() < 0.02) {
+                this.memory.dest = new RoomPosition(Math.floor(Math.random()*50), Math.floor(Math.random()*50), this.pos.roomName)
             }
-            creep.moveTo(creep.memory.dest.x, creep.memory.dest.y, {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-            creep.say('🧿');
+            this.moveTo(this.memory.dest.x, this.memory.dest.y, {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+            this.say('🧿');
         }
 	}
 };
 
-module.exports = roleSecurity;
+module.exports = Security;
