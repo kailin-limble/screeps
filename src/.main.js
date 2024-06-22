@@ -1,9 +1,11 @@
+var MyCreep = require('role.my-creep');
 var Harvester = require('role.harvester');
 var Upgrader = require('role.upgrader');
 var Builder = require('role.builder');
 var Security = require('role.security');
+
 var constructionMap = require('construction-map');
-var spawnHelper = require('spawn-helper');
+var spawner = require('spawner');
 
 module.exports.loop = function () {
     // benchmark
@@ -49,23 +51,23 @@ module.exports.loop = function () {
     let spawnPriority = {
         workerBuilder: {
             priority: 0,
-            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.WORKER, {model: 'WORKER', role: 'builder'})
+            action: () => spawner.spawnBiggestCreepOfModel(spawner.MODELS.WORKER, {model: 'WORKER', role: 'builder'})
         },
         workerUpgrader: {
             priority: 0,
-            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.WORKER, {model: 'WORKER', role: 'upgrader'})
+            action: () => spawner.spawnBiggestCreepOfModel(spawner.MODELS.WORKER, {model: 'WORKER', role: 'upgrader'})
         },
         workerHarvester: {
             priority: 0,
-            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
+            action: () => spawner.spawnBiggestCreepOfModel(spawner.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
         },
         range: {
             priority: 0,
-            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.RANGE, {model: 'RANGE', role: 'security'})
+            action: () => spawner.spawnBiggestCreepOfModel(spawner.MODELS.RANGE, {model: 'RANGE', role: 'security'})
         },
         melee: {
             priority: 0,
-            action: () => spawnHelper.spawnBiggestCreepOfModel(spawnHelper.MODELS.MELEE, {model: 'MELEE', role: 'security'})
+            action: () => spawner.spawnBiggestCreepOfModel(spawner.MODELS.MELEE, {model: 'MELEE', role: 'security'})
         },
     }
 
@@ -117,32 +119,35 @@ module.exports.loop = function () {
     // assign roles to creeps
     for(var name in Game.creeps) {
         var creep = Game.creeps[name];
+        creep.populateRoleActions = MyCreep.prototype.populateRoleActions.bind(creep)
+
         if(creep.memory.role == 'harvester') {
-            Object.assign(creep, Harvester)
+            creep.populateRoleActions(Harvester)
             creep.run()
         }
         if(creep.memory.role == 'upgrader') {
-            creep.run = Upgrader.prototype.run
+            creep.populateRoleActions(Upgrader)
             creep.run()
         }
         if(creep.memory.role == 'builder') {
-            creep.run = Builder.prototype.run
+            creep.populateRoleActions(Builder)
             creep.run()
         }
         
         if(Memory.securityAction == null || !Memory.securityAction) {
-            Memory.securityAction = creepSecurityCount >= 10
+            Memory.securityAction = creepSecurityCount >= 7
         }
         else {
             Memory.securityAction = creepSecurityCount != 1
         }
-        if(Memory.securityAction && creep.memory.role == 'security') {
-            creep.run = Security.prototype.runPatrol
-            creep.runPatrol()
-        }
-        if(!Memory.securityAction && creep.memory.role == 'security') {
-            creep.run = Security.prototype.runPatrol
-            creep.runPatrol()
+        if(creep.memory.role == 'security') {
+            creep.populateRoleActions(Security)
+            if(Memory.securityAction) {
+                creep.runExterminate()
+            }
+            else {
+                creep.runPatrol()
+            }
         }
     }
 }

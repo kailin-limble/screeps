@@ -1,8 +1,8 @@
-var Worker = require('role-helper');
+var Worker = require('role.worker');
 
 class Harvester extends Worker {
 
-    run = () => {
+    run() {
 	    if(this.memory.depositing && this.store[RESOURCE_ENERGY] == 0) {
             this.memory.depositing = false;
 	    }
@@ -21,12 +21,9 @@ class Harvester extends Worker {
             });
 
             if(targets.length > 0) {
-                for(let target of targets) {
-                    if(this.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        if(this.moveTo(target, {reusePath: 5, visualizePathStyle: {stroke: '#ffffff'}}) != ERR_NO_PATH) {
-                            break;
-                        }
-                    }
+                let target = this.pos.findClosestByPath(targets)
+                if(this.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(target, {reusePath: 5, visualizePathStyle: {stroke: '#ffffff'}})
                 }
                 this.say('📥');
             }

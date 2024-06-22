@@ -1,9 +1,7 @@
-// abstract
-class Worker extends Creep {
+var MyCreep = require('role.my-creep');
 
-    constructor() {
-        
-    }
+// abstract
+class Worker extends MyCreep {
     
     hasAdjacentOpenning(source) {
         const adjacentPositions = [

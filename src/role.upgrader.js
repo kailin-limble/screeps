@@ -1,4 +1,4 @@
-var Worker = require('role-helper');
+var Worker = require('role.worker');
 
 class Upgrader extends Worker {
 

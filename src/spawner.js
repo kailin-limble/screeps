@@ -1,4 +1,4 @@
-class SpawnHelper {
+class Spawner {
     // constants
     MODELS = {
         WORKER: [WORK, CARRY, MOVE],
@@ -56,4 +56,4 @@ class SpawnHelper {
     }
 }
 
-module.exports = new SpawnHelper();
+module.exports = new Spawner();

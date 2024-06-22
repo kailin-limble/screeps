@@ -1,4 +1,4 @@
-var Worker = require('role-helper');
+var Worker = require('role.worker');
 
 class Builder extends Worker {
 
@@ -19,6 +19,7 @@ class Builder extends Worker {
                     this.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffff00'}});
                 }
 				this.say('🚧');
+				return;
             }
 			
 			//repair
@@ -50,13 +51,13 @@ class Builder extends Worker {
                     this.moveTo(repairTarget, {reusePath: 5, visualizePathStyle: {stroke: '#7777ff'}});
                 }
 				this.say('🔧');
+				return;
             }
-            else {
-                if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(this.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
-                }
-                this.say('⬆️');
-            }
+
+			if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
+				this.moveTo(this.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
+			}
+			this.say('⬆️');
 	    }
 	    else {
             this.smartHarvest()

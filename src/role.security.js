@@ -1,4 +1,6 @@
-class Security extends Creep {
+var MyCreep = require('role.my-creep');
+
+class Security extends MyCreep {
 
     runExterminate() {
 
