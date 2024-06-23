@@ -50,6 +50,11 @@ class Spawner {
         return biggestModel
     }
 
+    spawnSmallestCreepOfModel(model, memory) {
+        let randomizedName = `${memory.model ?? '_'}-${memory.role ?? '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
+        let spawnStatus = Game.spawns['Spawn1'].spawnCreep(model, randomizedName, {memory: memory});
+    }
+
     spawnBiggestCreepOfModel(model, memory) {
         let randomizedName = `${memory.model ?? '_'}-${memory.role ?? '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
         let spawnStatus = Game.spawns['Spawn1'].spawnCreep(this.getBiggestPossibleModel(model), randomizedName, {memory: memory});

@@ -79,13 +79,17 @@ module.exports.loop = function () {
     let creepMeleeCount = Object.keys(getCreepsByMemory({model: 'MELEE', role: 'security'})).length
     let creepSecurityCount = creepRangeCount + creepMeleeCount
 
+    if(creepHarvesterCount == 0) {
+        spawner.spawnSmallestCreepOfModel(spawner.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
+    }
+
     // value 0 to 1; 1 is highest priority
     function setSpawnPriority() {
         spawnPriority.workerHarvester.priority = 1 - (creepHarvesterCount/3)
-        spawnPriority.workerBuilder.priority = (1 - (creepBuilderCount/4)) * 0.75
+        spawnPriority.workerBuilder.priority = (1 - (creepBuilderCount/4)) * 0.83
         spawnPriority.workerUpgrader.priority = 1 - (creepUpgraderCount/3)
-        spawnPriority.range.priority = (1 - (creepRangeCount/16)) * 0.25
-        spawnPriority.melee.priority = (1 - (creepMeleeCount/8)) * 0.25
+        spawnPriority.range.priority = (1 - (creepRangeCount/6)) * 0.20
+        spawnPriority.melee.priority = (1 - (creepMeleeCount/3)) * 0.20
     }
 
     function getKeyOfHighestPriorityNotZero() {
@@ -135,7 +139,7 @@ module.exports.loop = function () {
         }
         
         if(Memory.securityAction == null || !Memory.securityAction) {
-            Memory.securityAction = creepSecurityCount >= 7
+            Memory.securityAction = creepSecurityCount >= 9
         }
         else {
             Memory.securityAction = creepSecurityCount != 1

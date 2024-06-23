@@ -16,12 +16,21 @@ class Worker extends MyCreep {
         ]
 
         for(let pos of adjacentPositions) {
-            const look = pos.look()
-            if(look.length == 1 && ['plain', 'swamp'].includes(look[0].terrain)) {
+            if(this.isPosWalkable(pos)) {
                 return true
             }
         }
         return false
+    }
+
+    isPosWalkable(pos) {
+        const look = pos.look()
+        const obstacles = look.filter(obj => {
+            return OBSTACLE_OBJECT_TYPES.includes(obj.type) || OBSTACLE_OBJECT_TYPES.includes(obj.terrain) || OBSTACLE_OBJECT_TYPES.includes(obj.structureType)
+        })
+        if(obstacles.length == 0) {
+            return true
+        }
     }
 
     isSafeLocation(pos) {
@@ -40,8 +49,12 @@ class Worker extends MyCreep {
         }
 
         if(harvestErrCode == ERR_NOT_IN_RANGE) {
-            let safeAndUnoccupiedSources = sources.filter(source => this.hasAdjacentOpenning(source) && this.isSafeLocation(source.pos))
-            let closestSource = this.pos.findClosestByPath(safeAndUnoccupiedSources)
+            let safeUnoccupiedNonEmptySources = sources.filter(source => 
+                this.hasAdjacentOpenning(source) 
+                && this.isSafeLocation(source.pos)
+                && source.energy > 0
+            )
+            let closestSource = this.pos.findClosestByPath(safeUnoccupiedNonEmptySources)
             let moveErrCode = this.moveTo(closestSource, {reusePath: 5, visualizePathStyle: {stroke: '#777777'}})
             if(moveErrCode == ERR_NO_PATH) {
                 console.log("source inaccesible")
@@ -51,6 +64,10 @@ class Worker extends MyCreep {
 	            this.say('⛏️');
             }
         }
+    }
+
+    continueActionUntil(action, targetId, ticks) {
+        this.memory['continueActionUntil'] = {action: action, targetId: targetId, tick: ticks}
     }
 }
 

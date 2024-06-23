@@ -7,44 +7,80 @@ class Builder extends Worker {
 	    if(this.memory.building && this.store[RESOURCE_ENERGY] == 0) {
             this.memory.building = false;
 	    }
-	    if(!this.memory.building && this.store.getFreeCapacity() == 0) {
+	    if(!this.memory.building && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 25)) {
 	        this.memory.building = true;
 	    }
 
 	    if(this.memory.building) {
+			if(this.memory.continueActionUntil != null && Memory.tickCount <= (this.memory.continueActionUntil.tick ?? 0)) {
+				this[this.memory.continueActionUntil.action](Game.getObjectById(this.memory.continueActionUntil.targetId))
+				return;
+			}
+
+	        var constructureSites = this.room.find(FIND_CONSTRUCTION_SITES);
+			
+	        var myStructures = this.room.find(FIND_MY_STRUCTURES);
+	        var walls = this.room.find(FIND_STRUCTURES, {filter: (structure) => [STRUCTURE_WALL, STRUCTURE_ROAD].includes(structure.structureType)});
+	        var repairTargets = myStructures.concat(walls).filter((target) => (target.hits ?? 0) < (target.hitsMax ?? 0))
+			
+	        var repairTargetsPriority0 = []
+	        var repairTargetsPriority1 = []
+	        var repairTargetsPriority2 = []
+	        var repairTargetsPriority3 = []
+
+			for(let target of repairTargets) {
+				if(target.hits < 900) {
+					repairTargetsPriority0.push(target)
+				}
+				else if(target.hits / target.hitsMax < 0.25 && target.hits < 9900) {
+					repairTargetsPriority1.push(target)
+				}
+				else if(target.hits < 99900) {
+					repairTargetsPriority2.push(target)
+				}
+				else {
+					repairTargetsPriority3.push(target)
+				}
+			}
+
+			let repairTarget = null
+
+			//repair priority 0 and 1
+			if(repairTargetsPriority0.length > 0) {
+				repairTarget = this.pos.findClosestByPath(repairTargetsPriority0)
+			}
+			else if(repairTargetsPriority1.length > 0) {
+				repairTarget = this.pos.findClosestByPath(repairTargetsPriority1)
+			}
+
+            if(repairTarget != null) {
+                if(this.repair(repairTarget) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(repairTarget, {reusePath: 5, visualizePathStyle: {stroke: '#7777ff'}});
+                }
+				else {
+					this.continueActionUntil('repair', repairTarget.id, Memory.tickCount + 10)
+				}
+				this.say('🔧');
+				return;
+            }
+
+
 			//build
-	        var targets = this.room.find(FIND_CONSTRUCTION_SITES);
-            if(targets.length) {
-                if(this.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffff00'}});
+            if(constructureSites.length) {
+                if(this.build(constructureSites[0]) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(constructureSites[0], {visualizePathStyle: {stroke: '#ffff00'}});
                 }
 				this.say('🚧');
 				return;
             }
 			
-			//repair
-	        var myStructures = this.room.find(FIND_MY_STRUCTURES);
-	        var walls = this.room.find(FIND_STRUCTURES, {filter: (structure) => structure.structureType == STRUCTURE_WALL});
-	        var repairTargets = myStructures.concat(walls).filter((target) => (target.hits ?? 0) < (target.hitsMax ?? 0))
-			repairTargets.sort((a, b) => {
-				function getPriority(target) {
-					if(target.hits < 100) {
-						return 0
-					}
-					else if(target.hits / target.hitsMax < 0.25 && target.hits < 9900) {
-						return 1
-					}
-					else if(target.hits < 99900) {
-						return 2
-					}
-					else {
-						return 3
-					}
-				}
-				return getPriority(a) - getPriority(b)
-			})
-
-			let repairTarget = this.pos.findClosestByPath(repairTargets.slice(0, 5))
+			//repair priority 2 and 3
+			if(repairTargetsPriority2.length > 0) {
+				repairTarget = this.pos.findClosestByPath(repairTargetsPriority2)
+			}
+			else if(repairTargetsPriority3.length > 0) {
+				repairTarget = this.pos.findClosestByPath(repairTargetsPriority3)
+			}
 
             if(repairTarget != null) {
                 if(this.repair(repairTarget) == ERR_NOT_IN_RANGE) {
@@ -53,11 +89,6 @@ class Builder extends Worker {
 				this.say('🔧');
 				return;
             }
-
-			if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
-				this.moveTo(this.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
-			}
-			this.say('⬆️');
 	    }
 	    else {
             this.smartHarvest()
