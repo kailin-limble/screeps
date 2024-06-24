@@ -45,8 +45,12 @@ module.exports.loop = function () {
         }
 
         // init structures
-        for(let structure in constructionMap) {
-            for(let location of constructionMap[structure]) {
+        // deprioritize roads
+        if(room.controller.level <= 1) {
+            constructionMap[roomName][STRUCTURE_ROAD] = []
+        }
+        for(let structure in constructionMap[roomName]) {
+            for(let location of constructionMap[roomName][structure]) {
                 room.createConstructionSite(location[0], location[1], structure)
             }
         }
