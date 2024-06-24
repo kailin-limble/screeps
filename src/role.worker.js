@@ -26,7 +26,9 @@ class Worker extends MyCreep {
     isPosWalkable(pos) {
         const look = pos.look()
         const obstacles = look.filter(obj => {
-            return OBSTACLE_OBJECT_TYPES.includes(obj.type) || OBSTACLE_OBJECT_TYPES.includes(obj.terrain) || OBSTACLE_OBJECT_TYPES.includes(obj.structureType)
+            return OBSTACLE_OBJECT_TYPES.includes(obj.type) 
+                || (OBSTACLE_OBJECT_TYPES.includes(obj.terrain) && obj.terrain != STRUCTURE_ROAD) 
+                || OBSTACLE_OBJECT_TYPES.includes(obj.structureType)
         })
         if(obstacles.length == 0) {
             return true
@@ -64,10 +66,6 @@ class Worker extends MyCreep {
 	            this.say('⛏️');
             }
         }
-    }
-
-    continueActionUntil(action, targetId, ticks) {
-        this.memory['continueActionUntil'] = {action: action, targetId: targetId, tick: ticks}
     }
 }
 

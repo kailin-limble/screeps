@@ -28,8 +28,8 @@ class Spawner {
         return cost
     }
 
-    getBiggestPossibleModel(model) {
-        let spawnEnergyCapcity = Game.spawns['Spawn1'].room.energyCapacityAvailable
+    getBiggestPossibleModel(spawn, model) {
+        let spawnEnergyCapcity = spawn.room.energyCapacityAvailable
         let cost = this.getSpawnCost(model)
         let multipier = Math.floor(spawnEnergyCapcity / cost)
         let biggestModel = this.multiplyModel(model, multipier)
@@ -50,14 +50,14 @@ class Spawner {
         return biggestModel
     }
 
-    spawnSmallestCreepOfModel(model, memory) {
+    spawnSmallestCreepOfModel(spawn, model, memory) {
         let randomizedName = `${memory.model ?? '_'}-${memory.role ?? '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
-        let spawnStatus = Game.spawns['Spawn1'].spawnCreep(model, randomizedName, {memory: memory});
+        let spawnStatus = spawn.spawnCreep(model, randomizedName, {memory: memory});
     }
 
-    spawnBiggestCreepOfModel(model, memory) {
+    spawnBiggestCreepOfModel(spawn, model, memory) {
         let randomizedName = `${memory.model ?? '_'}-${memory.role ?? '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
-        let spawnStatus = Game.spawns['Spawn1'].spawnCreep(this.getBiggestPossibleModel(model), randomizedName, {memory: memory});
+        let spawnStatus = spawn.spawnCreep(this.getBiggestPossibleModel(spawn, model), randomizedName, {memory: memory});
     }
 }
 

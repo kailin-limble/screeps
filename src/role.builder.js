@@ -12,8 +12,7 @@ class Builder extends Worker {
 	    }
 
 	    if(this.memory.building) {
-			if(this.memory.continueActionUntil != null && Memory.tickCount <= (this.memory.continueActionUntil.tick ?? 0)) {
-				this[this.memory.continueActionUntil.action](Game.getObjectById(this.memory.continueActionUntil.targetId))
+			if(this.performStoredRepairAction()) {
 				return;
 			}
 
@@ -58,7 +57,7 @@ class Builder extends Worker {
                     this.moveTo(repairTarget, {reusePath: 5, visualizePathStyle: {stroke: '#7777ff'}});
                 }
 				else {
-					this.continueActionUntil('repair', repairTarget.id, Memory.tickCount + 10)
+					this.storeRepairAction({targetId: repairTarget.id, ticks: 10})
 				}
 				this.say('🔧');
 				return;
@@ -86,6 +85,9 @@ class Builder extends Worker {
                 if(this.repair(repairTarget) == ERR_NOT_IN_RANGE) {
                     this.moveTo(repairTarget, {reusePath: 5, visualizePathStyle: {stroke: '#7777ff'}});
                 }
+				else {
+					this.storeRepairAction({targetId: repairTarget.id, ticks: 25})
+				}
 				this.say('🔧');
 				return;
             }
@@ -93,6 +95,25 @@ class Builder extends Worker {
 	    else {
             this.smartHarvest()
 	    }
+	}
+
+	storeRepairAction(storeRepairAction) {
+		this.memory['storeRepairAction'] = {
+			...storeRepairAction,
+			ticks: Memory.tickCount + storeRepairAction.ticks
+		}
+	}
+
+	performStoredRepairAction() {
+		if(this.memory.storeRepairAction != null && Memory.tickCount <= (this.memory.storeRepairAction.ticks ?? 0)) {
+			const returnCode = this.repair(Game.getObjectById(this.memory.storeRepairAction.targetId))
+			if(returnCode == OK) {
+				this.say('🔧');
+				return true
+			}
+		}
+		this.memory.storeRepairAction = undefined
+		return false
 	}
 };
 
