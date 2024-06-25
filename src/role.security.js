@@ -4,8 +4,8 @@ class Security extends MyCreep {
 
     runExterminate() {
 
-        let hostileCreep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
-        let hostileStructure = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
+        let hostileCreep = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+        let hostileStructure = this.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES)
 
         let hostile = hostileCreep ?? hostileStructure
 
@@ -16,8 +16,8 @@ class Security extends MyCreep {
             this.say('🔫');
         }
         else {
-            if(this.memory.dest == null || Math.random() < 0.02) {
-                this.memory.dest = new RoomPosition(Math.floor(Math.random()*50), Math.floor(Math.random()*50), this.pos.roomName)
+            if(this.memory.dest == null || (Memory.tickCount % 10 == 0 && Math.random() < 0.05)) {
+                this.memory.dest = new RoomPosition(Math.floor(Math.random()*48 + 1), Math.floor(Math.random()*48 + 1), this.pos.roomName)
             }
             this.moveTo(this.memory.dest.x, this.memory.dest.y, {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
             this.say('💤');

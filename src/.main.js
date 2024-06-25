@@ -17,11 +17,14 @@ module.exports.loop = function () {
             Memory.tickCount = 0
         }
         else {
-            if(Memory.tickCount % 300 == 0) {
-                console.log("|||||||||| tick", Memory.tickCount)
-                console.log("||||||||| level", room.controller.level)
-                console.log("|||||| progress", room.controller.progress)
-                console.log("|||| population", Object.keys(Game.creeps).length)
+            if(Memory.tickCount % 600 == 0) {
+                console.log(`------`,
+                    `| tick: ${Memory.tickCount}`,
+                    `| level: ${room.controller.level}`,
+                    `| progress: ${room.controller.progress}`,
+                    `| population: ${Object.keys(Game.creeps).length}`,
+                    `| ------`
+                )
             }
             Memory.tickCount++
         }
@@ -45,13 +48,13 @@ module.exports.loop = function () {
         }
 
         // init structures
-        // deprioritize roads
-        if(room.controller.level <= 1) {
-            constructionMap[roomName][STRUCTURE_ROAD] = []
-        }
         for(let structure in constructionMap[roomName]) {
-            for(let location of constructionMap[roomName][structure]) {
-                room.createConstructionSite(location[0], location[1], structure)
+            for(let level in constructionMap[roomName][structure]) {
+                if(Number(level) <= room.controller.level) {
+                    for(let location of constructionMap[roomName][structure][level]) {
+                        room.createConstructionSite(location[0], location[1], structure)
+                    }
+                }
             }
         }
 
@@ -115,18 +118,18 @@ module.exports.loop = function () {
         }
 
         // assign roles to towers
-        var tower = Game.getObjectById<Creep>('d103f691f617d618766dce0a');
-        if(tower) {
-            var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => structure.hits < structure.hitsMax
-            });
-            if(closestDamagedStructure) {
-                tower.repair(closestDamagedStructure);
-            }
-
+        var towers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
+        for(const tower of towers) {
             var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
             if(closestHostile) {
                 tower.attack(closestHostile);
+            }
+
+            var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+                filter: (structure) => (structure.hits < structure.hitsMax && structure.hits < 9900)
+            });
+            if(closestDamagedStructure) {
+                tower.repair(closestDamagedStructure);
             }
         }
 
@@ -152,7 +155,7 @@ module.exports.loop = function () {
                 Memory.securityAction = creepSecurityCount >= 9
             }
             else {
-                Memory.securityAction = creepSecurityCount != 1
+                Memory.securityAction = creepSecurityCount >= 9/2
             }
             if(creep.memory.role == 'security') {
                 creep.populateRoleActions(Security)

@@ -57,20 +57,21 @@ class Builder extends Worker {
                     this.moveTo(repairTarget, {reusePath: 5, visualizePathStyle: {stroke: '#7777ff'}});
                 }
 				else {
-					this.storeRepairAction({targetId: repairTarget.id, ticks: 10})
+					this.storeRepairAction({targetId: repairTarget.id, ticks: 25})
 				}
 				this.say('🔧');
 				return;
             }
 
-
 			//build
             if(constructureSites.length) {
-                if(this.build(constructureSites[0]) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(constructureSites[0], {visualizePathStyle: {stroke: '#ffff00'}});
-                }
-				this.say('🚧');
-				return;
+				if(this.isSafeLocation(constructureSites[0].pos)) {
+					if(this.build(constructureSites[0]) == ERR_NOT_IN_RANGE) {
+						this.moveTo(constructureSites[0], {visualizePathStyle: {stroke: '#ffff00'}});
+					}
+					this.say('🚧');
+					return;
+				}
             }
 			
 			//repair priority 2 and 3
@@ -105,11 +106,14 @@ class Builder extends Worker {
 	}
 
 	performStoredRepairAction() {
-		if(this.memory.storeRepairAction != null && Memory.tickCount <= (this.memory.storeRepairAction.ticks ?? 0)) {
-			const returnCode = this.repair(Game.getObjectById(this.memory.storeRepairAction.targetId))
-			if(returnCode == OK) {
-				this.say('🔧');
-				return true
+		if(this.memory.storeRepairAction != null && Memory.tickCount < (this.memory.storeRepairAction.ticks ?? 0)) {
+			const target = Game.getObjectById(this.memory.storeRepairAction.targetId);
+			if(target.hits < target.hitsMax) {
+				const returnCode = this.repair(target)
+				if(returnCode == OK) {
+					this.say('🔧');
+					return true
+				}
 			}
 		}
 		this.memory.storeRepairAction = undefined
