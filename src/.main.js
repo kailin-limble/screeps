@@ -13,7 +13,7 @@ module.exports.loop = function () {
     Memory.tickCount++
     const BENCH_TICKS = 300
     if(Memory.tickCount % BENCH_TICKS == 0) {
-        console.log(`------ GAME | tick ${Memory.tickCount} | population: ${Object.keys(Game.creeps).length} ------`)
+        console.log(`------ GAME | tick ${Memory.tickCount} | population ${Object.keys(Game.creeps).length} ------`)
     }
 
     // main loop
@@ -50,7 +50,7 @@ module.exports.loop = function () {
         }
         if(Memory.tickCount % BENCH_TICKS == 0) {
             console.log(`ROOM ${roomName} | level ${room.controller.level}, ${room.controller.progress} | `,
-                `population: ${roomData.creeps.length} | efficiency: ~${Memory.roomEnergyHarvested}/${benchSources.length * 3000 * (Memory.tickCount/300)}`
+                `population ${roomData.creeps.length} | efficiency ~${Memory.roomEnergyHarvested}/${benchSources.length * 3000 * (Memory.tickCount/300)}`
             )
         }
 
@@ -78,9 +78,12 @@ module.exports.loop = function () {
         // assign roles to towers
         var towers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
         for(const tower of towers) {
-            var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-            if(closestHostile) {
-                tower.attack(closestHostile);
+            var closestHurtCreep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
+                filter: (creep) => (creep.hits < creep.hitsMax && creep.hits < 900)
+            });
+            if(closestHurtCreep) {
+                tower.heal(closestHurtCreep);
+                break;
             }
 
             var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
@@ -88,6 +91,13 @@ module.exports.loop = function () {
             });
             if(closestDamagedStructure) {
                 tower.repair(closestDamagedStructure);
+                break;
+            }
+
+            var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+            if(closestHostile) {
+                tower.attack(closestHostile);
+                break;
             }
         }
     }
