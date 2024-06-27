@@ -38,7 +38,7 @@ class Security extends MyCreep {
                     return prevHostile
                 }
                 return hostile
-            }, 
+            },
             null
         )
 

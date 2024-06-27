@@ -2,7 +2,7 @@ var MyCreep = require('role.my-creep');
 
 // abstract
 class Worker extends MyCreep {
-    
+
     hasAdjacentOpenning(source) {
         const adjacentPositions = [
             new RoomPosition(source.pos.x+1, source.pos.y, source.pos.roomName),
@@ -26,8 +26,8 @@ class Worker extends MyCreep {
     isPosWalkable(pos) {
         const look = pos.look()
         const obstacles = look.filter(obj => {
-            return OBSTACLE_OBJECT_TYPES.includes(obj.type) 
-                || (OBSTACLE_OBJECT_TYPES.includes(obj.terrain) && obj.terrain != STRUCTURE_ROAD) 
+            return OBSTACLE_OBJECT_TYPES.includes(obj.type)
+                || (OBSTACLE_OBJECT_TYPES.includes(obj.terrain) && obj.terrain != STRUCTURE_ROAD)
                 || OBSTACLE_OBJECT_TYPES.includes(obj.structureType)
         })
         if(obstacles.length == 0) {
@@ -51,8 +51,8 @@ class Worker extends MyCreep {
         }
 
         if(harvestErrCode == ERR_NOT_IN_RANGE) {
-            let safeUnoccupiedNonEmptySources = sources.filter(source => 
-                this.hasAdjacentOpenning(source) 
+            let safeUnoccupiedNonEmptySources = sources.filter(source =>
+                this.hasAdjacentOpenning(source)
                 && this.isSafeLocation(source.pos)
                 && source.energy > 0
             )

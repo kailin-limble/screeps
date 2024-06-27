@@ -6,13 +6,13 @@ var Security = require('role.security');
 
 class Dispatcher {
 
-    // class vars 
+    // class vars
     roomData;
 
     constructor(roomData) {
         this.roomData = roomData
     }
-    
+
     dispatchRolesToCreeps() {
         if(Memory.securityAction == null || !Memory.securityAction) {
             Memory.securityAction = this.roomData.creepsByRole.ranges.length + this.roomData.creepsByRole.melees.length >= 9

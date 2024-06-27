@@ -19,7 +19,7 @@ module.exports.loop = function () {
     // main loop
     for(const roomName in Game.rooms) {
         const room = Game.rooms[roomName]
-        
+
         const roomData = {
             creeps: room.find(FIND_MY_CREEPS),
             creepsByRole: {

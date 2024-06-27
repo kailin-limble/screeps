@@ -8,7 +8,7 @@ class Spawner {
         MEDIC: [TOUGH, TOUGH, HEAL, MOVE, HEAL, MOVE],
     }
 
-    // class vars    
+    // class vars
     room;
     spawn;
     roomData;
@@ -46,7 +46,7 @@ class Spawner {
         let cost = this.getSpawnCost(model)
         let multipier = Math.floor(spawnEnergyCapcity / cost)
         let biggestModel = this.multiplyModel(model, multipier)
-        biggestModel.sort((x,y) => { 
+        biggestModel.sort((x,y) => {
             if(x == y) {
                 return 0
             }
@@ -109,15 +109,15 @@ class Spawner {
         spawnPriority.workerUpgrader.priority = 1 - (this.roomData.creepsByRole.upgraders.length/3) * 0.90
         spawnPriority.range.priority = (1 - (this.roomData.creepsByRole.ranges.length/6)) * 0.30
         spawnPriority.melee.priority = (1 - (this.roomData.creepsByRole.melees.length/3)) * 0.20
-        
+
         let keyOfHighestPriorityNotZero = Object.keys(spawnPriority).reduce((a, b) => spawnPriority[a].priority > spawnPriority[b].priority ? a : b);
 
         // don't spawn if no more creeps are needed
         if(spawnPriority[keyOfHighestPriorityNotZero].priority <= 0) {
             return;
         }
-        
-        spawnPriority[keyOfHighestPriorityNotZero]?.action()        
+
+        spawnPriority[keyOfHighestPriorityNotZero]?.action()
     }
 }
 
