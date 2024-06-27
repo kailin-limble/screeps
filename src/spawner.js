@@ -7,6 +7,43 @@ class Spawner {
         MEDIC: [TOUGH, TOUGH, HEAL, MOVE, HEAL, MOVE],
     }
 
+    // class vars    
+    room;
+    spawn;
+
+    creeps;
+    creepsByRole = {
+        harvesters: 0,
+        builders: 0,
+        upgraders: 0,
+        range: 0,
+        melee: 0
+    };
+
+    constructor(room) {
+        this.room = room
+        this.spawn = room.find(FIND_MY_SPAWNS).find(spawn => spawn.spawning == null)
+
+        this.creeps = this.room.find(FIND_MY_CREEPS)
+        this.creepsByRole = {
+            harvesters: this.room.find(FIND_MY_CREEPS, {
+                filter: { memory: { role: 'harvester' } }
+            }),
+            builders: this.room.find(FIND_MY_CREEPS, {
+                filter: { memory: { role: 'builder' } }
+            }),
+            upgraders: this.room.find(FIND_MY_CREEPS, {
+                filter: { memory: { role: 'upgrader' } }
+            }),
+            ranges: this.room.find(FIND_MY_CREEPS, {
+                filter: { memory: { model: 'range' } }
+            }),
+            melees: this.room.find(FIND_MY_CREEPS, {
+                filter: { memory: { model: 'melee' } }
+            }),
+        }
+    }
+
     multiplyModel(model, multiple) {
         let multipliedModel = []
         for(let i=0; i<multiple; i++) {
@@ -28,8 +65,8 @@ class Spawner {
         return cost
     }
 
-    getBiggestPossibleModel(spawn, model) {
-        let spawnEnergyCapcity = spawn.room.energyCapacityAvailable
+    getBiggestPossibleModel(model) {
+        let spawnEnergyCapcity = this.room.energyCapacityAvailable
         let cost = this.getSpawnCost(model)
         let multipier = Math.floor(spawnEnergyCapcity / cost)
         let biggestModel = this.multiplyModel(model, multipier)
@@ -50,15 +87,62 @@ class Spawner {
         return biggestModel
     }
 
-    spawnSmallestCreepOfModel(spawn, model, memory) {
+    spawnSmallestCreepOfModel(model, memory) {
         let randomizedName = `${memory.model ?? '_'}-${memory.role ?? '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
-        let spawnStatus = spawn.spawnCreep(model, randomizedName, {memory: memory});
+        let spawnStatus = this.spawn.spawnCreep(model, randomizedName, {memory: memory});
     }
 
-    spawnBiggestCreepOfModel(spawn, model, memory) {
+    spawnBiggestCreepOfModel(model, memory) {
         let randomizedName = `${memory.model ?? '_'}-${memory.role ?? '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
-        let spawnStatus = spawn.spawnCreep(this.getBiggestPossibleModel(spawn, model), randomizedName, {memory: memory});
+        let spawnStatus = this.spawn.spawnCreep(this.getBiggestPossibleModel(model), randomizedName, {memory: memory});
+    }
+
+    spawnCreeps() {
+        let spawnPriority = {
+            workerBuilder: {
+                priority: 0,
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'builder'})
+            },
+            workerUpgrader: {
+                priority: 0,
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'upgrader'})
+            },
+            workerHarvester: {
+                priority: 0,
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
+            },
+            range: {
+                priority: 0,
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.RANGE, {model: 'RANGE', role: 'security'})
+            },
+            melee: {
+                priority: 0,
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.MELEE, {model: 'MELEE', role: 'security'})
+            },
+        }
+
+        // always start with a haverster
+        if(this.creepsByRole.harvesters.length == 0) {
+            this.spawnSmallestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
+            return;
+        }
+
+        // value 0 to 1; 1 is highest priority
+        spawnPriority.workerHarvester.priority = 1 - (this.creepsByRole.harvesters.length/3)
+        spawnPriority.workerBuilder.priority = (1 - (this.creepsByRole.builders.length/5)) * 0.70
+        spawnPriority.workerUpgrader.priority = 1 - (this.creepsByRole.upgraders.length/3)
+        spawnPriority.range.priority = (1 - (this.creepsByRole.ranges.length/6)) * 0.20
+        spawnPriority.melee.priority = (1 - (this.creepsByRole.melees.length/3)) * 0.20
+        
+        let keyOfHighestPriorityNotZero = Object.keys(spawnPriority).reduce((a, b) => spawnPriority[a].priority > spawnPriority[b].priority ? a : b);
+
+        // don't spawn if no more creeps are needed
+        if(spawnPriority[keyOfHighestPriorityNotZero].priority <= 0) {
+            return;
+        }
+        
+        spawnPriority[keyOfHighestPriorityNotZero]?.action()        
     }
 }
 
-module.exports = new Spawner();
+module.exports = Spawner;
