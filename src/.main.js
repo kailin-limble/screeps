@@ -50,7 +50,7 @@ module.exports.loop = function () {
         }
         if(Memory.tickCount % BENCH_TICKS == 0) {
             console.log(`ROOM ${roomName} | level ${room.controller.level}, ${room.controller.progress} | `,
-                `population: ${roomData.creepsByRole.length} | efficiency: ~${Memory.roomEnergyHarvested}/${benchSources.length * 3000 * (Memory.tickCount/300)}`
+                `population: ${roomData.creeps.length} | efficiency: ~${Memory.roomEnergyHarvested}/${benchSources.length * 3000 * (Memory.tickCount/300)}`
             )
         }
 
