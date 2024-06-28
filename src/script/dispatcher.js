@@ -1,13 +1,6 @@
-var MyCreep = require('role.my-creep');
-var Harvester = require('role.harvester');
-var Upgrader = require('role.upgrader');
-var Builder = require('role.builder');
-var Security = require('role.security');
+import { MyCreep, Harvester, Upgrader, Builder, Security } from './roles/index.js';
 
-class Dispatcher {
-
-    // class vars
-    roomData;
+export class Dispatcher {
 
     constructor(roomData) {
         this.roomData = roomData
@@ -49,5 +42,3 @@ class Dispatcher {
         }
     }
 }
-
-module.exports = Dispatcher;

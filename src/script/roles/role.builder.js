@@ -1,6 +1,6 @@
-var Worker = require('role.worker');
+import { Worker } from './role.worker';
 
-class Builder extends Worker {
+export class Builder extends Worker {
 
     run() {
 
@@ -20,7 +20,7 @@ class Builder extends Worker {
 			
 	        var myStructures = this.room.find(FIND_MY_STRUCTURES);
 	        var walls = this.room.find(FIND_STRUCTURES, {filter: (structure) => [STRUCTURE_WALL, STRUCTURE_ROAD].includes(structure.structureType)});
-	        var repairTargets = myStructures.concat(walls).filter((target) => (target.hits ?? 0) < (target.hitsMax ?? 0))
+	        var repairTargets = myStructures.concat(walls).filter((target) => (target.hits || 0) < (target.hitsMax || 0))
 			
 	        var repairTargetsPriority0 = []
 	        var repairTargetsPriority1 = []
@@ -106,7 +106,7 @@ class Builder extends Worker {
 	}
 
 	performStoredRepairAction() {
-		if(this.memory.storeRepairAction != null && Memory.tickCount < (this.memory.storeRepairAction.ticks ?? 0)) {
+		if(this.memory.storeRepairAction != null && Memory.tickCount < (this.memory.storeRepairAction.ticks || 0)) {
 			const target = Game.getObjectById(this.memory.storeRepairAction.targetId);
 			if(target.hits < target.hitsMax) {
 				const returnCode = this.repair(target)
@@ -120,5 +120,3 @@ class Builder extends Worker {
 		return false
 	}
 };
-
-module.exports = Builder;

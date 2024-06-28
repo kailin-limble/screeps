@@ -1,7 +1,7 @@
-var Spawner = require('spawner');
-var Dispatcher = require('dispatcher');
+import { Spawner } from './script/spawner.js';
+import { Dispatcher } from './script/dispatcher.js';
 
-var constructionMap = require('construction-map');
+import { map } from './script/construction-map.js';
 
 module.exports.loop = function () {
 
@@ -55,10 +55,10 @@ module.exports.loop = function () {
         }
 
         // init structures
-        for(let structure in constructionMap[roomName]) {
-            for(let level in constructionMap[roomName][structure]) {
+        for(let structure in map[roomName]) {
+            for(let level in map[roomName][structure]) {
                 if(Number(level) <= room.controller.level) {
-                    for(let location of constructionMap[roomName][structure][level]) {
+                    for(let location of map[roomName][structure][level]) {
                         room.createConstructionSite(location[0], location[1], structure)
                     }
                 }

@@ -1,5 +1,5 @@
 // abstract
-class MyCreep extends Creep {
+export class MyCreep extends Creep {
 
     constructor() {}
 
@@ -15,5 +15,3 @@ class MyCreep extends Creep {
         this.populateRoleActions(Object.getPrototypeOf(roleClass))
     }
 }
-
-module.exports = MyCreep;

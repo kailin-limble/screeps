@@ -1,22 +1,16 @@
-class Spawner {
-
-    // constants
-    MODELS = {
-        WORKER: [WORK, CARRY, MOVE],
-        RANGE: [TOUGH, TOUGH, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE],
-        MELEE: [TOUGH, TOUGH, ATTACK, MOVE, ATTACK, MOVE],
-        MEDIC: [TOUGH, TOUGH, HEAL, MOVE, HEAL, MOVE],
-    }
-
-    // class vars
-    room;
-    spawn;
-    roomData;
+export class Spawner {
 
     constructor(room, roomData) {
+    
+        this.MODELS = {
+            WORKER: [WORK, CARRY, MOVE],
+            RANGE: [TOUGH, TOUGH, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE],
+            MELEE: [TOUGH, TOUGH, ATTACK, MOVE, ATTACK, MOVE],
+            MEDIC: [TOUGH, TOUGH, HEAL, MOVE, HEAL, MOVE],
+        }
+
         this.room = room
         this.spawn = room.find(FIND_MY_SPAWNS).find(spawn => spawn.spawning == null)
-
         this.roomData = roomData
     }
 
@@ -64,12 +58,12 @@ class Spawner {
     }
 
     spawnSmallestCreepOfModel(model, memory) {
-        let randomizedName = `${memory.model ?? '_'}-${memory.role ?? '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
+        let randomizedName = `${memory.model || '_'}-${memory.role || '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
         let spawnStatus = this.spawn.spawnCreep(model, randomizedName, {memory: memory});
     }
 
     spawnBiggestCreepOfModel(model, memory) {
-        let randomizedName = `${memory.model ?? '_'}-${memory.role ?? '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
+        let randomizedName = `${memory.model || '_'}-${memory.role || '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
         let spawnStatus = this.spawn.spawnCreep(this.getBiggestPossibleModel(model), randomizedName, {memory: memory});
     }
 
@@ -117,8 +111,6 @@ class Spawner {
             return;
         }
 
-        spawnPriority[keyOfHighestPriorityNotZero]?.action()
+        spawnPriority[keyOfHighestPriorityNotZero].action()
     }
 }
-
-module.exports = Spawner;

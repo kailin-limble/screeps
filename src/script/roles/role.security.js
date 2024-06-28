@@ -1,13 +1,13 @@
-var MyCreep = require('role.my-creep');
+import { MyCreep } from './role.my-creep';
 
-class Security extends MyCreep {
+export class Security extends MyCreep {
 
     runExterminate() {
 
         let hostileCreep = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
         let hostileStructure = this.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES)
 
-        let hostile = hostileCreep ?? hostileStructure
+        let hostile = hostileCreep || hostileStructure
 
         if(hostile != null && hostile.hits != null) {
             if(this.attack(hostile) == ERR_NOT_IN_RANGE || this.rangedAttack(hostile) == ERR_NOT_IN_RANGE) {
@@ -57,5 +57,3 @@ class Security extends MyCreep {
         }
 	}
 };
-
-module.exports = Security;

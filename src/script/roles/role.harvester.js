@@ -1,6 +1,6 @@
-var Worker = require('role.worker');
+import { Worker } from './role.worker';
 
-class Harvester extends Worker {
+export class Harvester extends Worker {
 
     run() {
 	    if(this.memory.depositing && this.store[RESOURCE_ENERGY] == 0) {
@@ -49,5 +49,3 @@ class Harvester extends Worker {
 	    }
 	}
 };
-
-module.exports = Harvester;

@@ -1,4 +1,4 @@
-let map = {
+export const map = {
     // spawns can't be placed programmatically
     sim: {
         [STRUCTURE_SPAWN]: {
@@ -130,5 +130,3 @@ let map = {
         ]
     }
 }
-
-module.exports = map;

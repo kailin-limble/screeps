@@ -1,7 +1,7 @@
-var MyCreep = require('role.my-creep');
+import { MyCreep } from './role.my-creep';
 
 // abstract
-class Worker extends MyCreep {
+export class Worker extends MyCreep {
 
     hasAdjacentOpenning(source) {
         const adjacentPositions = [
@@ -68,5 +68,3 @@ class Worker extends MyCreep {
         }
     }
 }
-
-module.exports = Worker;

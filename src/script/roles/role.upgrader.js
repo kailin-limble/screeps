@@ -1,6 +1,6 @@
-var Worker = require('role.worker');
+import { Worker } from './role.worker';
 
-class Upgrader extends Worker {
+export class Upgrader extends Worker {
 
     run() {
 
@@ -22,5 +22,3 @@ class Upgrader extends Worker {
         }
 	}
 };
-
-module.exports = Upgrader;

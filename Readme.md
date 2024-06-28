@@ -1,3 +1,5 @@
 Recommended:
 
-run `npm i @types/screeps`
+run `npm install`
+
+run `rollup -c --bundleConfigAsCjs`
