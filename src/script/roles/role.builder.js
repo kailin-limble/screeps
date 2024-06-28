@@ -78,9 +78,6 @@ export class Builder extends Worker {
 			if(repairTargetsPriority2.length > 0) {
 				repairTarget = this.pos.findClosestByPath(repairTargetsPriority2)
 			}
-			else if(repairTargetsPriority3.length > 0) {
-				repairTarget = this.pos.findClosestByPath(repairTargetsPriority3)
-			}
 
             if(repairTarget != null) {
                 if(this.repair(repairTarget) == ERR_NOT_IN_RANGE) {
@@ -92,6 +89,11 @@ export class Builder extends Worker {
 				this.say('🔧');
 				return;
             }
+			
+            if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
+                this.moveTo(this.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
+            }
+            this.say('⬆️');
 	    }
 	    else {
             this.smartHarvest()

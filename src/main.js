@@ -48,7 +48,7 @@ module.exports.loop = function () {
                 Memory.roomEnergyHarvested += Math.round((3000-source.energy)*(300/299))
             }
         }
-        if(Memory.tickCount % BENCH_TICKS == 0) {
+        if(Memory.tickCount % BENCH_TICKS == 0 && room.controller != null) {
             console.log(`ROOM ${roomName} | level ${room.controller.level}, ${room.controller.progress} | `,
                 `population ${roomData.creeps.length} | efficiency ~${Memory.roomEnergyHarvested}/${benchSources.length * 3000 * (Memory.tickCount/300)}`
             )
@@ -87,7 +87,7 @@ module.exports.loop = function () {
             }
 
             var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => (structure.hits < structure.hitsMax && structure.hits < 9900)
+                filter: (structure) => (structure.hits < structure.hitsMax && structure.hits < 9900 && structure.hits / structure.hitsMax < 0.25)
             });
             if(closestDamagedStructure) {
                 tower.repair(closestDamagedStructure);

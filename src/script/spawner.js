@@ -4,7 +4,7 @@ export class Spawner {
     
         this.MODELS = {
             WORKER: [WORK, CARRY, MOVE],
-            RANGE: [TOUGH, TOUGH, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE],
+            RANGE: [TOUGH, RANGED_ATTACK, MOVE],
             MELEE: [TOUGH, TOUGH, ATTACK, MOVE, ATTACK, MOVE],
             MEDIC: [TOUGH, TOUGH, HEAL, MOVE, HEAL, MOVE],
         }
@@ -98,11 +98,11 @@ export class Spawner {
         }
 
         // value 0 to 1; 1 is highest priority
-        spawnPriority.workerHarvester.priority = 1 - (this.roomData.creepsByRole.harvesters.length/4)
-        spawnPriority.workerBuilder.priority = (1 - (this.roomData.creepsByRole.builders.length/5)) * 0.80
-        spawnPriority.workerUpgrader.priority = 1 - (this.roomData.creepsByRole.upgraders.length/3) * 0.90
-        spawnPriority.range.priority = (1 - (this.roomData.creepsByRole.ranges.length/6)) * 0.30
-        spawnPriority.melee.priority = (1 - (this.roomData.creepsByRole.melees.length/3)) * 0.20
+        spawnPriority.workerHarvester.priority = 1 - (this.roomData.creepsByRole.harvesters.length/3)
+        spawnPriority.workerBuilder.priority = (1 - (this.roomData.creepsByRole.builders.length/4)) * 0.70
+        spawnPriority.workerUpgrader.priority = 1 - (this.roomData.creepsByRole.upgraders.length/2) * 0.90
+        spawnPriority.range.priority = (1 - (this.roomData.creepsByRole.ranges.length/2)) * 0.30
+        spawnPriority.melee.priority = (1 - (this.roomData.creepsByRole.melees.length/1)) * 0.20
 
         let keyOfHighestPriorityNotZero = Object.keys(spawnPriority).reduce((a, b) => spawnPriority[a].priority > spawnPriority[b].priority ? a : b);
 
