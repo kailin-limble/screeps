@@ -28,7 +28,12 @@ export class Harvester extends Worker {
                 return;
             }
 
-            var towers = this.room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
+            var towers = this.room.find(FIND_MY_STRUCTURES, {
+                filter: (structure) => {
+                    return (structure.structureType == STRUCTURE_TOWER) &&
+                            structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+                }
+            });
 
             if(towers.length > 0) {
                 let tower = this.pos.findClosestByPath(towers)
