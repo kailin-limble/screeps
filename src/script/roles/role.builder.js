@@ -34,10 +34,10 @@ export class Builder extends Worker {
 				else if(target.hits < 9900 && target.hits / target.hitsMax < 0.25) {
 					repairTargetsPriority1.push(target)
 				}
-				else if(target.hits < 99900 && target.hits / target.hitsMax < 0.75) {
+				else if(target.hits < 99900 && target.hits / target.hitsMax < 0.50) {
 					repairTargetsPriority2.push(target)
 				}
-				else {
+				else if(target.hits < 999900 && target.hits / target.hitsMax < 0.75) {
 					repairTargetsPriority3.push(target)
 				}
 			}
@@ -78,9 +78,9 @@ export class Builder extends Worker {
 			if(repairTargetsPriority2.length > 0) {
 				repairTarget = this.pos.findClosestByPath(repairTargetsPriority2)
 			}
-			// else if(repairTargetsPriority3.length > 0) {
-			// 	repairTarget = this.pos.findClosestByPath(repairTargetsPriority3)
-			// }
+			else if(repairTargetsPriority3.length > 0) {
+				repairTarget = this.pos.findClosestByPath(repairTargetsPriority3)
+			}
 
             if(repairTarget != null) {
                 if(this.repair(repairTarget) == ERR_NOT_IN_RANGE) {
