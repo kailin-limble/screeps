@@ -100,7 +100,7 @@ export class Spawner {
         // value 0 to 1; 1 is highest priority
         spawnPriority.workerHarvester.priority = 1 - (this.roomData.creepsByRole.harvesters.length/3)
         spawnPriority.workerBuilder.priority = (1 - (this.roomData.creepsByRole.builders.length/4)) * 0.70
-        spawnPriority.workerUpgrader.priority = 1 - (this.roomData.creepsByRole.upgraders.length/2) * 0.90
+        spawnPriority.workerUpgrader.priority = (1 - (this.roomData.creepsByRole.upgraders.length/2)) * 0.90
         spawnPriority.range.priority = (1 - (this.roomData.creepsByRole.ranges.length/2)) * 0.30
         spawnPriority.melee.priority = (1 - (this.roomData.creepsByRole.melees.length/1)) * 0.20
 

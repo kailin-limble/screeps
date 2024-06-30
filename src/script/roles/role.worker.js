@@ -46,11 +46,11 @@ export class Worker extends MyCreep {
         for(let source of sources) {
             harvestErrCode = this.harvest(source)
             if(harvestErrCode == OK) {
-                break;
+                return;
             }
         }
 
-        if(harvestErrCode == ERR_NOT_IN_RANGE) {
+        if(harvestErrCode == ERR_NOT_IN_RANGE || harvestErrCode == ERR_NOT_ENOUGH_ENERGY) {
             let safeUnoccupiedNonEmptySources = sources.filter(source =>
                 this.hasAdjacentOpenning(source)
                 && this.isSafeLocation(source.pos)
