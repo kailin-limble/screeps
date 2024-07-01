@@ -15,7 +15,7 @@ export class Security extends MyCreep {
             this.say('🔫');
         }
         else {
-            if(this.memory.dest == null || (Memory.tickCount % 10 == 0 && Math.random() < 0.05)) {
+            if(this.memory.dest == null || (Game.time % 10 == 0 && Math.random() < 0.05)) {
                 this.memory.dest = new RoomPosition(Math.floor(Math.random()*48 + 1), Math.floor(Math.random()*48 + 1), this.pos.roomName)
             }
             this.moveTo(this.memory.dest.x, this.memory.dest.y, {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
@@ -47,7 +47,7 @@ export class Security extends MyCreep {
             this.say('🔫');
         }
         else {
-            if(this.memory.dest == null || (Memory.tickCount % 10 == 0 && Math.random() < 0.05)) {
+            if(this.memory.dest == null || (Game.time % 10 == 0 && Math.random() < 0.05)) {
                 this.memory.dest = new RoomPosition(Math.floor(Math.random()*48 + 1), Math.floor(Math.random()*48 + 1), this.pos.roomName)
             }
             this.moveTo(this.memory.dest.x, this.memory.dest.y, {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
@@ -94,7 +94,7 @@ export class Security extends MyCreep {
             this.say('🔫');
         }
         else {
-            if(this.memory.dest == null || (Memory.tickCount % 10 == 0 && Math.random() < 0.05)) {
+            if(this.memory.dest == null || (Game.time % 10 == 0 && Math.random() < 0.05)) {
                 const exitKeys = ['1', '3', '5', '7']
                 const randomExitKey = exitKeys[Math.floor(Math.random() * exitKeys.length)]
                 const newRoomName = Game.map.describeExits(this.pos.roomName)[randomExitKey]

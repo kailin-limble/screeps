@@ -35,10 +35,10 @@ export class Spawner {
         return cost
     }
 
-    getBiggestPossibleModel(model) {
-        let spawnEnergyCapcity = this.room.energyCapacityAvailable
+    getBiggestPossibleModel(model, useCurrentEnergy) {
+        let energy = useCurrentEnergy ? this.room.energy : this.room.energyCapacityAvailable
         let cost = this.getSpawnCost(model)
-        let multipier = Math.floor(spawnEnergyCapcity / cost)
+        let multipier = Math.floor(energy / cost)
         let biggestModel = this.multiplyModel(model, multipier)
         biggestModel.sort((x,y) => {
             if(x == y) {
@@ -58,13 +58,18 @@ export class Spawner {
     }
 
     spawnSmallestCreepOfModel(model, memory) {
-        let randomizedName = `${memory.model || '_'}-${memory.role || '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
+        let randomizedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
         let spawnStatus = this.spawn.spawnCreep(model, randomizedName, {memory: memory});
     }
 
     spawnBiggestCreepOfModel(model, memory) {
-        let randomizedName = `${memory.model || '_'}-${memory.role || '_'}-${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`
+        let randomizedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
         let spawnStatus = this.spawn.spawnCreep(this.getBiggestPossibleModel(model), randomizedName, {memory: memory});
+    }
+
+    spawnBiggestCurrentCreepOfModel(model, memory) {
+        let randomizedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
+        let spawnStatus = this.spawn.spawnCreep(this.getBiggestPossibleModel(model, true), randomizedName, {memory: memory});
     }
 
     spawnCreeps() {
@@ -93,7 +98,7 @@ export class Spawner {
 
         // always start with a haverster
         if(this.roomData.creepsByRole.harvesters.length == 0) {
-            this.spawnSmallestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
+            this.spawnBiggestCurrentCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
             return;
         }
 

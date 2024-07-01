@@ -6,14 +6,12 @@ import { map } from './script/construction-map.js';
 module.exports.loop = function () {
 
     // benchmark
-    if(Memory.tickCount == null) {
-        Memory.tickCount = 0
+    if(Game.time == null) {
         Memory.roomEnergyHarvested = 0
     }
-    Memory.tickCount++
     const BENCH_TICKS = 300
-    if(Memory.tickCount % BENCH_TICKS == 0) {
-        console.log(`------ GAME | tick ${Memory.tickCount} | population ${Object.keys(Game.creeps).length} ------`)
+    if(Game.time % BENCH_TICKS == 0) {
+        console.log(`------ GAME | tick ${Game.time} | population ${Object.keys(Game.creeps).length} ------`)
     }
 
     // main loop
@@ -48,9 +46,9 @@ module.exports.loop = function () {
                 Memory.roomEnergyHarvested += Math.round((3000-source.energy)*(300/299))
             }
         }
-        if(Memory.tickCount % BENCH_TICKS == 0 && room.controller != null) {
+        if(Game.time % BENCH_TICKS == 0 && room.controller != null) {
             console.log(`ROOM ${roomName} | level ${room.controller.level}, ${room.controller.progress} | `,
-                `population ${roomData.creeps.length} | efficiency ~${Memory.roomEnergyHarvested}/${benchSources.length * 3000 * (Memory.tickCount/300)}`
+                `population ${roomData.creeps.length} | efficiency ~${Memory.roomEnergyHarvested}/${benchSources.length * 3000 * (Game.time/300)}`
             )
         }
 

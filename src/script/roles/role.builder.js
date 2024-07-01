@@ -106,12 +106,12 @@ export class Builder extends Worker {
 	storeRepairAction(storeRepairAction) {
 		this.memory['storeRepairAction'] = {
 			...storeRepairAction,
-			ticks: Memory.tickCount + storeRepairAction.ticks
+			ticks: Game.time + storeRepairAction.ticks
 		}
 	}
 
 	performStoredRepairAction() {
-		if(this.memory.storeRepairAction != null && Memory.tickCount < (this.memory.storeRepairAction.ticks || 0)) {
+		if(this.memory.storeRepairAction != null && Game.time < (this.memory.storeRepairAction.ticks || 0)) {
 			const target = Game.getObjectById(this.memory.storeRepairAction.targetId);
 			if(target.hits < target.hitsMax) {
 				const returnCode = this.repair(target)
