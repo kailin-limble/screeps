@@ -2,108 +2,195 @@ import { MyCreep } from './role.my-creep';
 
 export class Security extends MyCreep {
 
+    findWeakestHostileInRange(range) {
+        let hostileCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, range, {
+            filter: (creep) => { return  creep.hits != null }
+        })
+        let hostileStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, range, {
+            filter: (structure) => { return  structure.hits != null }
+        })
+
+        let weakestHostile = [...hostileCreeps, ...hostileStructures].reduce(
+            (prevHostile, hostile) => {
+                if(prevHostile == null) {
+                    return hostile
+                }
+                else if(hostile.hits < prevHostile.hits) {
+                    return hostile
+                }
+                return prevHostile
+            },
+            null
+        )
+
+        return weakestHostile
+    }
+
+    findClosestHostile() {
+        let hostileCreep = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+            filter: (creep) => creep.hits != null 
+        })
+        let hostileStructure = this.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
+            filter: (structure) => structure.hits != null 
+        })
+
+        return hostileCreep || hostileStructure
+    }
+
+    moveRandomlyInRoom() {
+        if(this.memory.dest == null || (Game.time % 25 == 0 && Math.random() < 0.25)) {
+            this.memory.dest = new RoomPosition(Math.floor(Math.random()*48 + 1), Math.floor(Math.random()*48 + 1), this.pos.roomName)
+        }
+        this.moveTo(this.memory.dest.x, this.memory.dest.y, {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+    }
+
+    moveRandomlyBetweenRooms() {
+        if(this.memory.dest == null || (Game.time % 25 == 0 && Math.random() < 0.25)) {
+            const exitKeys = ['1', '3', '5', '7']
+            const randomExitKey = exitKeys[Math.floor(Math.random() * exitKeys.length)]
+            const newRoomName = Game.map.describeExits(this.pos.roomName)[randomExitKey]
+            if(newRoomName != null) {
+                this.memory.dest = new RoomPosition(Math.floor(Math.random()*48 + 1), Math.floor(Math.random()*48 + 1), newRoomName)
+            }
+        }
+        this.moveTo(new RoomPosition(this.memory.dest.x, this.memory.dest.y, this.memory.dest.roomName), {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+    }
+
+    attackWithRightBodyPart(hostile) {
+        if(this.getRangeTo(hostile) == 1) {
+            let errCode = this.attack(hostile)
+            if(errCode == OK || errCode == ERR_NOT_IN_RANGE) {
+                return errCode
+            }
+
+            errCode == this.rangedMassAttack(hostile)
+            if(errCode == OK || errCode == ERR_NOT_IN_RANGE) {
+                return errCode
+            }
+        }
+        else {
+            let errCode = this.rangedAttack(hostile)
+            if(errCode == OK || errCode == ERR_NOT_IN_RANGE) {
+                return errCode
+            }
+
+            errCode == this.attack(hostile)
+            if(errCode == OK || errCode == ERR_NOT_IN_RANGE) {
+                return errCode
+            }
+        }
+
+        return errCode
+    }
+
+    // stay in ramparts, attack hostiles if they come in range. If there are no ramparts, just patrol. 
+    runGuard() {
+        let myRamparts = this.room.find(FIND_MY_STRUCTURES, {
+            filter: (structure) => { return structure.structureType == STRUCTURE_RAMPART }
+        })
+
+        if(myRamparts.length == 0) {            
+            this.runPatrol()
+            return;
+        }
+
+        let weakestHostile = this.findWeakestHostileInRange(3)
+        let isInRampart = this.pos.findInRange(FIND_MY_STRUCTURES, 0).find(
+            (structure) => structure.structureType == STRUCTURE_RAMPART
+        ) != null
+
+        if(weakestHostile != null && isInRampart) {
+            this.attackWithRightBodyPart()
+            this.say('🔫');
+        }
+        else {
+            if(this.memory.dest == null || (Game.time % 25 == 0 && Math.random() < 0.05)) {
+                let rampart = myRamparts[Math.floor(Math.random() * myRamparts.length)]
+                this.memory.dest = rampart.pos
+            }
+            this.moveTo(new RoomPosition(this.memory.dest.x, this.memory.dest.y, this.memory.dest.roomName), {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+            this.say('🛡️');
+        }
+	}
+
+    // move around randomly, engage hostiles if they come near
+    runPatrol() {
+        let weakestHostile = this.findWeakestHostileInRange(5)
+
+        if(weakestHostile != null) {
+            if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
+                this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
+            }
+            this.say('🔫');
+        }
+        else {
+            this.moveRandomlyInRoom()
+            this.say('🧿');
+        }
+	}
+
+    // attack the closest hostile in the room 
     runExterminate() {
-        let hostileCreep = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
-        let hostileStructure = this.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES)
+        let hostile = this.findClosestHostile()
 
-        let hostile = hostileCreep || hostileStructure
-
-        if(hostile != null && hostile.hits != null) {
-            if(this.attack(hostile) == ERR_NOT_IN_RANGE || this.rangedAttack(hostile) == ERR_NOT_IN_RANGE) {
+        if(hostile != null) {
+            if(this.attackWithRightBodyPart(hostile) == ERR_NOT_IN_RANGE) {
                 this.moveTo(hostile, {reusePath: 5, visualizePathStyle: {stroke: '#ff0000'}});
             }
             this.say('🔫');
         }
         else {
-            if(this.memory.dest == null || (Game.time % 10 == 0 && Math.random() < 0.05)) {
-                this.memory.dest = new RoomPosition(Math.floor(Math.random()*48 + 1), Math.floor(Math.random()*48 + 1), this.pos.roomName)
-            }
-            this.moveTo(this.memory.dest.x, this.memory.dest.y, {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+            this.moveRandomlyInRoom()
             this.say('💤');
         }
 	}
 
-    runPatrol() {
-        let hostileCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, 5)
-        let hostileStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, 5).filter(structure => structure.hits != null)
+    // move around randomly from room to room, attack weak hostiles on sight
+    runMaraud() {
+        let weakestHostile = this.findWeakestHostileInRange(20)
 
-        let weakestHostile = [...hostileCreeps, ...hostileStructures].reduce(
-            (prevHostile, hostile) => {
-                if(prevHostile == null) {
-                    return hostile
-                }
-                else if(hostile.hits < prevHostile.hits) {
-                    return hostile
-                }
-                return prevHostile
-            },
-            null
-        )
-
-        if(weakestHostile != null) {
-            if(this.attack(weakestHostile) == ERR_NOT_IN_RANGE || this.rangedAttack(weakestHostile) == ERR_NOT_IN_RANGE) {
+        if(weakestHostile != null && weakestHostile.hits < this.hits) {
+            if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
                 this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
             }
             this.say('🔫');
         }
         else {
-            if(this.memory.dest == null || (Game.time % 10 == 0 && Math.random() < 0.05)) {
-                this.memory.dest = new RoomPosition(Math.floor(Math.random()*48 + 1), Math.floor(Math.random()*48 + 1), this.pos.roomName)
-            }
-            this.moveTo(this.memory.dest.x, this.memory.dest.y, {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+            this.moveRandomlyBetweenRooms()
             this.say('🧿');
         }
 	}
 
-    runMaraud() {
-        let hostileCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, 20, {
-            filter: (creep) => {
-                return (
-                    creep.hits != null 
-                    && creep.hits < this.hits*2
-                    && !(creep.owner.username == 'Invader' || !creep.name.includes("k") || !creep.name.includes("K"))
-                )
-            }
-        })
-        let hostileStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, 20, {
-            filter: (structure) => {
-                return (
-                    structure.hits != null 
-                    && (structure.owner.username == 'Invader')
-                )
-            }
-        })
+    // attack hostiles near by in the room with the flag; return to flag if hurt. Otherwise just patrol. 
+    runInvade() {
+        if(Game.flags['Invade'] == null) {
+            this.runPatrol()
+            return;
+        }
 
-        let weakestHostile = [...hostileCreeps, ...hostileStructures].reduce(
-            (prevHostile, hostile) => {
-                if(prevHostile == null) {
-                    return hostile
-                }
-                else if(hostile.hits < prevHostile.hits) {
-                    return hostile
-                }
-                return prevHostile
-            },
-            null
-        )
+        if(this.pos.roomName == Game.flags['Invade'].pos.roomName) {
 
-        if(weakestHostile != null) {
-            if(this.attack(weakestHostile) == ERR_NOT_IN_RANGE || this.rangedAttack(weakestHostile) == ERR_NOT_IN_RANGE) {
-                this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
+            if(this.hits/this.hitsMax < 0.25) {
+                this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+                this.say('🩸');
+                return;
             }
-            this.say('🔫');
+
+            let weakestHostile = this.findWeakestHostileInRange(5)
+            if(weakestHostile != null) {
+                if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
+                }
+                this.say('🔫');
+            }
+            else {
+                this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+                this.say('⚡');
+            }
         }
         else {
-            if(this.memory.dest == null || (Game.time % 10 == 0 && Math.random() < 0.05)) {
-                const exitKeys = ['1', '3', '5', '7']
-                const randomExitKey = exitKeys[Math.floor(Math.random() * exitKeys.length)]
-                const newRoomName = Game.map.describeExits(this.pos.roomName)[randomExitKey]
-                if(newRoomName != null) {
-                    this.memory.dest = new RoomPosition(Math.floor(Math.random()*48 + 1), Math.floor(Math.random()*48 + 1), newRoomName)
-                }
-            }
-            this.moveTo(new RoomPosition(this.memory.dest.x, this.memory.dest.y, this.memory.dest.roomName), {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-            this.say('🧿');
+            this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+            this.say('⚡');
         }
 	}
 };

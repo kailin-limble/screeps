@@ -7,13 +7,6 @@ export class Dispatcher {
     }
 
     dispatchRolesToCreeps() {
-        if(Memory.securityAction == null || !Memory.securityAction) {
-            Memory.securityAction = this.roomData.creepsByRole.ranges.length + this.roomData.creepsByRole.melees.length >= 9
-        }
-        else {
-            Memory.securityAction = this.roomData.creepsByRole.ranges.length + this.roomData.creepsByRole.melees.length >= 9/2
-        }
-
         for(var name in this.roomData.creeps) {
             var creep = this.roomData.creeps[name];
             creep.populateRoleActions = MyCreep.prototype.populateRoleActions.bind(creep)
@@ -32,11 +25,17 @@ export class Dispatcher {
             }
             if(creep.memory.role == 'security') {
                 creep.populateRoleActions(Security)
-                if(Memory.securityAction) {
-                    creep.runExterminate()
+                if(Memory.securityAction == null) {
+                    creep.runGuard()
                 }
                 else {
-                    creep.runPatrol()
+                    try{
+                        creep[Memory.securityAction]()
+                    }
+                    catch {
+                        console.log(`The security action ${Memory.securityAction} is not defined. Defaulting to runGuard`)
+                        creep.runGuard()
+                    }
                 }
             }
         }
