@@ -7,7 +7,7 @@ export class Builder extends Worker {
 	    if(this.memory.building && this.store[RESOURCE_ENERGY] == 0) {
             this.memory.building = false;
 	    }
-	    if(!this.memory.building && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 25)) {
+	    if(!this.memory.building && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 35)) {
 	        this.memory.building = true;
 	    }
 

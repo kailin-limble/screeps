@@ -35,8 +35,8 @@ export class Spawner {
         return cost
     }
 
-    getBiggestPossibleModel(model, useCurrentEnergy) {
-        let energy = useCurrentEnergy ? this.room.energy : this.room.energyCapacityAvailable
+    getBiggestPossibleModel(model, maxEnergy) {
+        let energy = maxEnergy ? maxEnergy : this.room.energyCapacityAvailable
         let cost = this.getSpawnCost(model)
         let multipier = Math.floor(energy / cost)
         let biggestModel = this.multiplyModel(model, multipier)
@@ -62,50 +62,45 @@ export class Spawner {
         let spawnStatus = this.spawn.spawnCreep(model, randomizedName, {memory: memory});
     }
 
-    spawnBiggestCreepOfModel(model, memory) {
+    spawnBiggestCreepOfModel(model, memory, maxEnergy) {
         let randomizedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
-        let spawnStatus = this.spawn.spawnCreep(this.getBiggestPossibleModel(model), randomizedName, {memory: memory});
-    }
-
-    spawnBiggestCurrentCreepOfModel(model, memory) {
-        let randomizedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
-        let spawnStatus = this.spawn.spawnCreep(this.getBiggestPossibleModel(model, true), randomizedName, {memory: memory});
+        let spawnStatus = this.spawn.spawnCreep(this.getBiggestPossibleModel(model, maxEnergy), randomizedName, {memory: memory});
     }
 
     spawnCreeps() {
         let spawnPriority = {
             workerBuilder: {
                 priority: 0,
-                action: () => this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'builder'})
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'builder'}, 1500)
             },
             workerUpgrader: {
                 priority: 0,
-                action: () => this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'upgrader'})
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'upgrader'}, 1500)
             },
             workerHarvester: {
                 priority: 0,
-                action: () => this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'}, 1500)
             },
             range: {
                 priority: 0,
-                action: () => this.spawnBiggestCreepOfModel(this.MODELS.RANGE, {model: 'RANGE', role: 'security'})
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.RANGE, {model: 'RANGE', role: 'security'}, 1680)
             },
             melee: {
                 priority: 0,
-                action: () => this.spawnBiggestCreepOfModel(this.MODELS.MELEE, {model: 'MELEE', role: 'security'})
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.MELEE, {model: 'MELEE', role: 'security'}, 1680)
             },
         }
 
         // always start with a haverster
         if(this.roomData.creepsByRole.harvesters.length == 0) {
-            this.spawnBiggestCurrentCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'})
+            this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'}, this.room.energyAvailable)
             return;
         }
 
         // value 0 to 1; 1 is highest priority
         spawnPriority.workerHarvester.priority = 1 - (this.roomData.creepsByRole.harvesters.length/3)
-        spawnPriority.workerBuilder.priority = (1 - (this.roomData.creepsByRole.builders.length/4)) * 0.70
-        spawnPriority.workerUpgrader.priority = (1 - (this.roomData.creepsByRole.upgraders.length/2)) * 0.90
+        spawnPriority.workerBuilder.priority = (1 - (this.roomData.creepsByRole.builders.length/2)) * 0.70
+        spawnPriority.workerUpgrader.priority = (1 - (this.roomData.creepsByRole.upgraders.length/1)) * 0.90
         spawnPriority.range.priority = (1 - (this.roomData.creepsByRole.ranges.length/2)) * 0.30
         spawnPriority.melee.priority = (1 - (this.roomData.creepsByRole.melees.length/1)) * 0.20
 

@@ -7,7 +7,7 @@ export class Upgrader extends Worker {
         if(this.memory.upgrading && this.store[RESOURCE_ENERGY] == 0) {
             this.memory.upgrading = false;
 	    }
-	    if(!this.memory.upgrading && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 25)) {
+	    if(!this.memory.upgrading && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 35)) {
 	        this.memory.upgrading = true;
 	    }
 

@@ -6,7 +6,7 @@ export class Harvester extends Worker {
 	    if(this.memory.depositing && this.store[RESOURCE_ENERGY] == 0) {
             this.memory.depositing = false;
 	    }
-	    if(!this.memory.depositing && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 25)) {
+	    if(!this.memory.depositing && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 35)) {
 	        this.memory.depositing = true;
 	    }
 
