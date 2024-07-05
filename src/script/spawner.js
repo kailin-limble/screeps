@@ -93,10 +93,10 @@ export class Spawner {
             ((this.roomData.creepsByRole.upgraders.length + 1) / (optimalWorkForce.count*0.20 + 1))
         ) * 0.90
         spawnPriority.range.priority = (1 - 
-            (this.roomData.creepsByRole.ranges.length / 1)
+            ((this.roomData.creepsByRole.ranges.length + 1) / 2)
         ) * 0.30
         spawnPriority.melee.priority = (1 - 
-            (this.roomData.creepsByRole.melees.length / 1)
+            ((this.roomData.creepsByRole.melees.length + 1) / 2)
         ) * 0.20
 
         return spawnPriority

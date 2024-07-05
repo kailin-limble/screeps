@@ -11,7 +11,7 @@ export class Harvester extends Worker {
 	    }
 
 	    if(this.memory.depositing) {
-            var targets = this.room.find(FIND_STRUCTURES, {
+            var targets = this.room.find(FIND_MY_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_EXTENSION ||
                             structure.structureType == STRUCTURE_SPAWN) &&
@@ -41,6 +41,7 @@ export class Harvester extends Worker {
                 this.say('📥');
                 return;
             }
+            
             var storages = this.room.find(FIND_MY_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_STORAGE) &&

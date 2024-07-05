@@ -83,7 +83,7 @@ export class Security extends MyCreep {
         ) != null
 
         if(weakestHostile != null && isInRampart) {
-            this.attackWithRightBodyPart()
+            this.attackWithRightBodyPart(weakestHostile)
             this.say('🔫');
         }
         else {
@@ -162,9 +162,7 @@ export class Security extends MyCreep {
 
             let weakestHostile = this.findWeakestHostileInRange(5)
             if(weakestHostile != null) {
-                let err = this.attackWithRightBodyPart(weakestHostile)
-                console.log("|||||", err)
-                if(err == ERR_NOT_IN_RANGE) {
+                if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
                     this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
                 }
                 this.say('🔫');

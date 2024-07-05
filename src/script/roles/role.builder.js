@@ -15,8 +15,6 @@ export class Builder extends Worker {
 			if(this.performStoredRepairAction()) {
 				return;
 			}
-
-	        var constructureSites = this.room.find(FIND_CONSTRUCTION_SITES);
 			
 	        var myStructures = this.room.find(FIND_MY_STRUCTURES);
 	        var walls = this.room.find(FIND_STRUCTURES, {filter: (structure) => [STRUCTURE_WALL, STRUCTURE_ROAD].includes(structure.structureType)});
@@ -64,6 +62,7 @@ export class Builder extends Worker {
             }
 
 			//build
+	        var constructureSites = this.room.find(FIND_CONSTRUCTION_SITES);
             if(constructureSites.length) {
 				if(this.isSafeLocation(constructureSites[0].pos)) {
 					if(this.build(constructureSites[0]) == ERR_NOT_IN_RANGE) {

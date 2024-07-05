@@ -99,7 +99,7 @@ module.exports.loop = function () {
             });
             if(closestHurtCreep) {
                 tower.heal(closestHurtCreep);
-                break;
+                continue;
             }
 
             var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
@@ -107,13 +107,13 @@ module.exports.loop = function () {
             });
             if(closestDamagedStructure) {
                 tower.repair(closestDamagedStructure);
-                break;
+                continue;
             }
 
             var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
             if(closestHostile) {
                 tower.attack(closestHostile);
-                break;
+                continue;
             }
         }
     }
