@@ -93,10 +93,7 @@ export class Builder extends Worker {
 				return;
             }
 			
-            if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
-                this.moveTo(this.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
-            }
-            this.say('⬆️');
+            this.fallbackAction()
 	    }
 	    else {
             this.smartHarvest()

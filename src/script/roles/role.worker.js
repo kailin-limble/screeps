@@ -1,43 +1,8 @@
 import { MyCreep } from './role.my-creep';
+import { Utils } from '../utils';
 
 // abstract
 export class Worker extends MyCreep {
-
-    hasAdjacentOpenning(source) {
-        const adjacentPositions = [
-            new RoomPosition(source.pos.x+1, source.pos.y, source.pos.roomName),
-            new RoomPosition(source.pos.x+1, source.pos.y+1, source.pos.roomName),
-            new RoomPosition(source.pos.x+1, source.pos.y-1, source.pos.roomName),
-            new RoomPosition(source.pos.x-1, source.pos.y, source.pos.roomName),
-            new RoomPosition(source.pos.x-1, source.pos.y+1, source.pos.roomName),
-            new RoomPosition(source.pos.x-1, source.pos.y-1, source.pos.roomName),
-            new RoomPosition(source.pos.x, source.pos.y+1, source.pos.roomName),
-            new RoomPosition(source.pos.x, source.pos.y-1, source.pos.roomName),
-        ]
-
-        for(let pos of adjacentPositions) {
-            if(this.isPosWalkable(pos)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    isPosWalkable(pos) {
-        const look = pos.look()
-        const obstacles = look.filter(obj => {
-            return OBSTACLE_OBJECT_TYPES.includes(obj.type)
-                || (OBSTACLE_OBJECT_TYPES.includes(obj.terrain) && obj.terrain != STRUCTURE_ROAD)
-                || OBSTACLE_OBJECT_TYPES.includes(obj.structureType)
-        })
-        if(obstacles.length == 0) {
-            return true
-        }
-    }
-
-    isSafeLocation(pos) {
-        return pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0
-    }
 
     smartHarvest() {
         var sources = this.room.find(FIND_SOURCES);
@@ -52,8 +17,8 @@ export class Worker extends MyCreep {
 
         if(harvestErrCode == ERR_NOT_IN_RANGE || harvestErrCode == ERR_NOT_ENOUGH_ENERGY) {
             let safeUnoccupiedNonEmptySources = sources.filter(source =>
-                this.hasAdjacentOpenning(source)
-                && this.isSafeLocation(source.pos)
+                Utils.hasAdjacentOpenning(source)
+                && Utils.isSafeLocation(source.pos)
                 && source.energy > 0
             )
             let closestSource = this.pos.findClosestByPath(safeUnoccupiedNonEmptySources)
@@ -65,6 +30,18 @@ export class Worker extends MyCreep {
             else {
 	            this.say('⛏️');
             }
+        }
+    }
+
+    fallbackAction() {        
+        if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
+            this.moveTo(this.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
+        }
+        if(this.room.controller != null && this.room.controller.level < 8) {
+            this.say('🔼');
+        }
+        else {
+            this.say('⏸️');
         }
     }
 }

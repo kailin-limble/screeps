@@ -1,14 +1,12 @@
 import { Spawner } from './script/spawner.js';
 import { Dispatcher } from './script/dispatcher.js';
 
+import { Utils } from './script/utils';
 import { map } from './script/construction-map.js';
 
 module.exports.loop = function () {
 
     // benchmark
-    if(Game.time == null) {
-        Memory.roomEnergyHarvested = 0
-    }
     const BENCH_TICKS = 300
     if(Game.time % BENCH_TICKS == 0) {
         console.log(`------ GAME | tick ${Game.time} | population ${Object.keys(Game.creeps).length} ------`)
@@ -17,6 +15,33 @@ module.exports.loop = function () {
     // main loop
     for(const roomName in Game.rooms) {
         const room = Game.rooms[roomName]
+
+        // benchmark
+        if(room.memory.energyHarvested == null) {
+            room.memory.energyHarvested = 0
+        }
+        let benchSources = room.find(FIND_SOURCES)
+        if(room.memory.sources == null) {
+            let mineableSlots = 0
+            let minMineableSlot = null
+            for(const benchSource of benchSources) {
+                let slots = Utils.countAdjacentWalkables(benchSource)
+                mineableSlots += slots
+                if(minMineableSlot == null || slots < minMineableSlot) {
+                    minMineableSlot = slots
+                }
+            }
+            room.memory.sources = {
+                count: benchSources.length,
+                mineableSlots: mineableSlots,
+                minMineableSlot: minMineableSlot
+            }
+        }
+        for(let source of benchSources) {
+            if(source.ticksToRegeneration == 1) {
+                room.memory.energyHarvested += Math.round((3000-source.energy)*(300/299))
+            }
+        }
 
         const roomData = {
             creeps: room.find(FIND_MY_CREEPS),
@@ -39,16 +64,9 @@ module.exports.loop = function () {
             }
         }
 
-        // benchmark
-        let benchSources = room.find(FIND_SOURCES)
-        for(let source of benchSources) {
-            if(source.ticksToRegeneration == 1) {
-                Memory.roomEnergyHarvested += Math.round((3000-source.energy)*(300/299))
-            }
-        }
         if(Game.time % BENCH_TICKS == 0 && room.controller != null) {
             console.log(`ROOM ${roomName} | level ${room.controller.level}, ${room.controller.progress} | `,
-                `population ${roomData.creeps.length} | efficiency ~${Memory.roomEnergyHarvested}/${benchSources.length * 3000 * (Game.time/300)}`
+                `population ${roomData.creeps.length} | efficiency ~${room.memory.energyHarvested}/${room.memory.sources.count * 3000 * (Game.time/300)}`
             )
         }
 

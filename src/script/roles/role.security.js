@@ -57,30 +57,13 @@ export class Security extends MyCreep {
     }
 
     attackWithRightBodyPart(hostile) {
-        if(this.getRangeTo(hostile) == 1) {
-            let errCode = this.attack(hostile)
-            if(errCode == OK || errCode == ERR_NOT_IN_RANGE) {
-                return errCode
-            }
-
-            errCode == this.rangedMassAttack(hostile)
-            if(errCode == OK || errCode == ERR_NOT_IN_RANGE) {
-                return errCode
-            }
+        if(this.memory.model == 'MELEE') {
+            return this.attack(hostile)
         }
-        else {
-            let errCode = this.rangedAttack(hostile)
-            if(errCode == OK || errCode == ERR_NOT_IN_RANGE) {
-                return errCode
-            }
-
-            errCode == this.attack(hostile)
-            if(errCode == OK || errCode == ERR_NOT_IN_RANGE) {
-                return errCode
-            }
+        if(this.pos.getRangeTo(hostile) == 1) {
+            return this.rangedMassAttack(hostile)
         }
-
-        return errCode
+        return this.rangedAttack(hostile)
     }
 
     // stay in ramparts, attack hostiles if they come in range. If there are no ramparts, just patrol. 
@@ -169,8 +152,9 @@ export class Security extends MyCreep {
         }
 
         if(this.pos.roomName == Game.flags['Invade'].pos.roomName) {
-
-            if(this.hits/this.hitsMax < 0.25) {
+            let isNearFlag = this.pos.inRangeTo(Game.flags['Invade'], 3) != null
+            
+            if(this.hits/this.hitsMax < 0.25 && !isNearFlag) {
                 this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
                 this.say('🩸');
                 return;
@@ -178,7 +162,9 @@ export class Security extends MyCreep {
 
             let weakestHostile = this.findWeakestHostileInRange(5)
             if(weakestHostile != null) {
-                if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
+                let err = this.attackWithRightBodyPart(weakestHostile)
+                console.log("|||||", err)
+                if(err == ERR_NOT_IN_RANGE) {
                     this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
                 }
                 this.say('🔫');
