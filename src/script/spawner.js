@@ -42,6 +42,12 @@ export class Spawner {
     }
 
     getSpawnPriority() {
+        // always start with a haverster
+        if(this.roomData.creepsByRole.harvesters.length == 0) {
+            this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'}, this.room.energyAvailable)
+            return;
+        }
+
         let optimalWorkForce = this.getOptimalWorkForce()
 
         let spawnPriority = {
@@ -76,12 +82,6 @@ export class Spawner {
             },
         }
 
-        // always start with a haverster
-        if(this.roomData.creepsByRole.harvesters.length == 0) {
-            this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'}, this.room.energyAvailable)
-            return;
-        }
-
         // value -1 to 1; 1 is highest priority; priority <= 0 is no spawn
         spawnPriority.workerHarvester.priority = (1 - 
             ((this.roomData.creepsByRole.harvesters.length + 1.75) / (optimalWorkForce.count*0.45 + 1))
@@ -93,10 +93,10 @@ export class Spawner {
             ((this.roomData.creepsByRole.upgraders.length + 1) / (optimalWorkForce.count*0.20 + 1))
         ) * 0.90
         spawnPriority.range.priority = (1 - 
-            ((this.roomData.creepsByRole.ranges.length + 1) / 2)
+            ((this.roomData.creepsByRole.ranges.length + 1.5) / 2)
         ) * 0.30
         spawnPriority.melee.priority = (1 - 
-            ((this.roomData.creepsByRole.melees.length + 1) / 2)
+            ((this.roomData.creepsByRole.melees.length + 1.5) / 2)
         ) * 0.20
 
         return spawnPriority
@@ -128,31 +128,21 @@ export class Spawner {
         let cost = this.getSpawnCost(model)
         let multipier = Math.floor(energy / cost)
         let biggestModel = this.multiplyModel(model, multipier)
-        biggestModel.sort((x,y) => {
-            if(x == y) {
-                return 0
-            }
-            else if(x == TOUGH) {
-                return -1
-            }
-            else if(y == TOUGH) {
-                return 1
-            }
-            else {
-                return 0
-            }
-        });
+        if(biggestModel.includes(TOUGH)) {
+            biggestModel = biggestModel.filter(part => part == TOUGH)
+                .concat(biggestModel.filter(part => part != TOUGH))
+        }
         return biggestModel
     }
 
     spawnSmallestCreepOfModel(model, memory) {
-        let randomizedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
-        let spawnStatus = this.spawn.spawnCreep(model, randomizedName, {memory: memory});
+        let tickBasedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
+        this.spawn.spawnCreep(model, tickBasedName, {memory: memory});
     }
 
     spawnBiggestCreepOfModel(model, memory, maxEnergy) {
-        let randomizedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
-        let spawnStatus = this.spawn.spawnCreep(this.getBiggestPossibleModel(model, maxEnergy), randomizedName, {memory: memory});
+        let tickBasedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
+        this.spawn.spawnCreep(this.getBiggestPossibleModel(model, maxEnergy), tickBasedName, {memory: memory});
     }
 
     spawnCreeps() {

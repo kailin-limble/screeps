@@ -17,9 +17,9 @@ export class Worker extends MyCreep {
 
         if(harvestErrCode == ERR_NOT_IN_RANGE || harvestErrCode == ERR_NOT_ENOUGH_ENERGY) {
             let safeUnoccupiedNonEmptySources = sources.filter(source =>
-                Utils.hasAdjacentOpenning(source)
-                && Utils.isSafeLocation(source.pos)
-                && source.energy > 0
+                source.energy > 0 &&
+                Utils.hasAdjacentOpenning(source) &&
+                Utils.isSafeLocation(source.pos)
             )
             let closestSource = this.pos.findClosestByPath(safeUnoccupiedNonEmptySources)
             let moveErrCode = this.moveTo(closestSource, {reusePath: 5, visualizePathStyle: {stroke: '#777777'}})
