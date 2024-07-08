@@ -71,7 +71,7 @@ export class Medic extends MyCreep {
                 this.memory.dest = rampart.pos
             }
             this.moveTo(new RoomPosition(this.memory.dest.x, this.memory.dest.y, this.memory.dest.roomName), {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-            this.say('🛡️');
+            this.say('🚑');
         }
 	}
 
@@ -87,14 +87,14 @@ export class Medic extends MyCreep {
         let closestHurtFriendly = this.findClosestHurtFriendly()
         if(closestHurtFriendly != null) {
             if(this.healWithCorrectRange(closestHurtFriendly) == ERR_NOT_IN_RANGE) {
-                this.moveTo(closestHurtFriendly, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
+                this.moveTo(closestHurtFriendly, {reusePath: 50, visualizePathStyle: {stroke: '#00ff00'}});
             }
             this.say('💚');
             return;
         }
         
         this.moveRandomlyInRoom()
-        this.say('🧿');
+        this.say('🚑');
 	}
 
     // heal nearby friendlies
@@ -116,8 +116,9 @@ export class Medic extends MyCreep {
 
         if(this.pos.roomName == Game.flags['Invade'].pos.roomName) {
             let isNearFlag = this.pos.inRangeTo(Game.flags['Invade'], 3) != null
+            let isOnRoomEdge = this.pos.x == 0 || this.pos.x == 49 || this.pos.y == 0 || this.pos.y == 49
             
-            if(this.hits/this.hitsMax < 0.33 && !isNearFlag) {
+            if(this.hits/this.hitsMax < 0.33 && !isNearFlag || isOnRoomEdge) {
                 this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
                 this.say('🩸');
                 return;
@@ -133,19 +134,19 @@ export class Medic extends MyCreep {
             let closestHurtFriendly = this.findClosestHurtFriendly()
             if(closestHurtFriendly != null) {
                 if(this.healWithCorrectRange(closestHurtFriendly) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(closestHurtFriendly, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
+                    this.moveTo(closestHurtFriendly, {reusePath: 50, visualizePathStyle: {stroke: '#00ff00'}});
                 }
                 this.say('💚');
                 return;
             }
             else {
                 this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-                this.say('⚡');
+                this.say('🚑');
             }
         }
         else {
             this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-            this.say('⚡');
+            this.say('🚑');
         }
 	}
 };
