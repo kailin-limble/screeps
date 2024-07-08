@@ -61,6 +61,9 @@ module.exports.loop = function () {
                 melees: room.find(FIND_MY_CREEPS, {
                     filter: { memory: { model: 'MELEE' } }
                 }),
+                medics: room.find(FIND_MY_CREEPS, {
+                    filter: { memory: { model: 'MEDIC' } }
+                }),
             }
         }
 

@@ -154,7 +154,7 @@ export class Security extends MyCreep {
         if(this.pos.roomName == Game.flags['Invade'].pos.roomName) {
             let isNearFlag = this.pos.inRangeTo(Game.flags['Invade'], 3) != null
             
-            if(this.hits/this.hitsMax < 0.25 && !isNearFlag) {
+            if(this.hits/this.hitsMax < 0.33 && !isNearFlag) {
                 this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
                 this.say('🩸');
                 return;

@@ -6,7 +6,7 @@ export class Spawner {
             WORKER: [WORK, CARRY, MOVE],
             RANGE: [TOUGH, RANGED_ATTACK, MOVE],
             MELEE: [TOUGH, TOUGH, ATTACK, MOVE, ATTACK, MOVE],
-            MEDIC: [TOUGH, HEAL, MOVE],
+            MEDIC: [TOUGH, MOVE, HEAL, HEAL, HEAL, MOVE],
         }
         this.ENERGY = 3000 // energy per source per 300 tick cycle
         this.MINING_RATE = 150 // average energy mined per cycle per 1 work body part
@@ -80,6 +80,10 @@ export class Spawner {
                 priority: 0,
                 action: () => this.spawnBiggestCreepOfModel(this.MODELS.MELEE, {model: 'MELEE', role: 'security'})
             },
+            medic: {
+                priority: 0,
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.MEDIC, {model: 'MEDIC', role: 'medic'})
+            },
         }
 
         // value -1 to 1; 1 is highest priority; priority <= 0 is no spawn
@@ -97,6 +101,9 @@ export class Spawner {
         ) * 0.30
         spawnPriority.melee.priority = (1 - 
             ((this.roomData.creepsByRole.melees.length + 1.5) / 2)
+        ) * 0.25
+        spawnPriority.medic.priority = (1 - 
+            ((this.roomData.creepsByRole.medics.length + 1.5) / 2)
         ) * 0.20
 
         return spawnPriority
