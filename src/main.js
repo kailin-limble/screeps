@@ -9,6 +9,11 @@ module.exports.loop = function () {
     // benchmark
     const BENCH_TICKS = 300
     if(Game.time % BENCH_TICKS == 0) {
+        for (const name in Memory.creeps) {
+            if (!(name in Game.creeps)) {
+                delete Memory.creeps[name];
+            }
+        }
         console.log(`------ GAME | tick ${Game.time} | population ${Object.keys(Game.creeps).length} ------`)
     }
 

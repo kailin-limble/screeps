@@ -4,6 +4,7 @@ export class Spawner {
     
         this.MODELS = {
             WORKER: [WORK, CARRY, MOVE],
+            CLAIMER: [CLAIM, MOVE],
             RANGE: [TOUGH, RANGED_ATTACK, MOVE],
             MELEE: [TOUGH, TOUGH, ATTACK, MOVE, ATTACK, MOVE],
             MEDIC: [TOUGH, MOVE, HEAL, HEAL, HEAL, MOVE],
@@ -135,7 +136,7 @@ export class Spawner {
         let cost = this.getSpawnCost(model)
         let multipier = Math.floor(energy / cost)
         let biggestModel = this.multiplyModel(model, multipier)
-        if(biggestModel.includes(TOUGH)) {
+        if(model.includes(TOUGH)) {
             biggestModel = biggestModel.filter(part => part == TOUGH)
                 .concat(biggestModel.filter(part => part != TOUGH))
         }

@@ -1,4 +1,5 @@
 import { Worker } from './role.worker';
+import { Utils } from '../utils';
 
 export class Builder extends Worker {
 
@@ -64,7 +65,7 @@ export class Builder extends Worker {
 			//build
 	        var constructureSites = this.room.find(FIND_CONSTRUCTION_SITES);
             if(constructureSites.length) {
-				if(this.isSafeLocation(constructureSites[0].pos)) {
+				if(Utils.isSafeLocation(constructureSites[0].pos)) {
 					if(this.build(constructureSites[0]) == ERR_NOT_IN_RANGE) {
 						this.moveTo(constructureSites[0], {visualizePathStyle: {stroke: '#ffff00'}});
 					}
