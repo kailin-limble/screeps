@@ -63,7 +63,7 @@ export class Medic extends MyCreep {
 
         if(weakestFriendly != null && isInRampart) {
             this.healWithCorrectRange(weakestFriendly)
-            this.say('💚');
+            this.say('💚', true);
         }
         else {
             if(this.memory.dest == null || (Game.time % 25 == 0 && Math.random() < 0.05)) {
@@ -71,7 +71,7 @@ export class Medic extends MyCreep {
                 this.memory.dest = rampart.pos
             }
             this.moveTo(new RoomPosition(this.memory.dest.x, this.memory.dest.y, this.memory.dest.roomName), {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-            this.say('🚑');
+            this.say('🚑', true);
         }
 	}
 
@@ -80,7 +80,7 @@ export class Medic extends MyCreep {
         let weakestFriendlyInRange = this.findWeakestFriendlyInRange(1)
         if(weakestFriendlyInRange != null) {
             this.healWithCorrectRange(weakestFriendlyInRange)
-            this.say('💚');
+            this.say('💚', true);
             return;
         }
 
@@ -89,12 +89,12 @@ export class Medic extends MyCreep {
             if(this.healWithCorrectRange(closestHurtFriendly) == ERR_NOT_IN_RANGE) {
                 this.moveTo(closestHurtFriendly, {reusePath: 50, visualizePathStyle: {stroke: '#00ff00'}});
             }
-            this.say('💚');
+            this.say('💚', true);
             return;
         }
         
         this.moveRandomlyInRoom()
-        this.say('🚑');
+        this.say('🚑', true);
 	}
 
     // heal nearby friendlies
@@ -120,14 +120,14 @@ export class Medic extends MyCreep {
             
             if(this.hits/this.hitsMax < 0.33 && !isNearFlag || isOnRoomEdge) {
                 this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-                this.say('🩸');
+                this.say('🩸', true);
                 return;
             }
 
             let weakestFriendlyInRange = this.findWeakestFriendlyInRange(1)
             if(weakestFriendlyInRange != null) {
                 this.healWithCorrectRange(weakestFriendlyInRange)
-                this.say('💚');
+                this.say('💚', true);
                 return;
             }
     
@@ -136,17 +136,17 @@ export class Medic extends MyCreep {
                 if(this.healWithCorrectRange(closestHurtFriendly) == ERR_NOT_IN_RANGE) {
                     this.moveTo(closestHurtFriendly, {reusePath: 50, visualizePathStyle: {stroke: '#00ff00'}});
                 }
-                this.say('💚');
+                this.say('💚', true);
                 return;
             }
             else {
                 this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-                this.say('🚑');
+                this.say('🚑', true);
             }
         }
         else {
             this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-            this.say('🚑');
+            this.say('🚑', true);
         }
 	}
 };

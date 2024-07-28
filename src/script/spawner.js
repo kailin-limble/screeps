@@ -41,6 +41,24 @@ export class Spawner {
             cost: optimalWorkerCost
         }
     }
+    
+    getInvasionArmyForceSize() {
+        if(Memory.securityAction == 'runInvade') {
+            return 3 * (Memory.viableRoomsCount || 1)
+        }
+        return 1
+    }
+    
+    getArmyCountToUse() {
+        if(Memory.securityAction == 'runInvade') {
+            return Memory.creepsModelCounts
+        }
+        return {
+            RANGE: this.roomData.creepsByRole.ranges.length,
+            MELEE: this.roomData.creepsByRole.melees.length, 
+            MEDIC: this.roomData.creepsByRole.medics.length
+        }
+    }
 
     getSpawnPriority() {
         // always start with a haverster
@@ -50,6 +68,8 @@ export class Spawner {
         }
 
         let optimalWorkForce = this.getOptimalWorkForce()
+        let invasionArmyForceSize = this.getInvasionArmyForceSize()
+        let armyCountToUse = this.getArmyCountToUse()
 
         let spawnPriority = {
             workerBuilder: {
@@ -98,13 +118,13 @@ export class Spawner {
             ((this.roomData.creepsByRole.upgraders.length + 1) / (optimalWorkForce.count*0.20 + 1))
         ) * 0.90
         spawnPriority.range.priority = (1 - 
-            ((this.roomData.creepsByRole.ranges.length + 1.5) / 2)
+            ((armyCountToUse.RANGE + 1.5) / (invasionArmyForceSize + 1))
         ) * 0.30
         spawnPriority.melee.priority = (1 - 
-            ((this.roomData.creepsByRole.melees.length + 1.5) / 2)
+            ((armyCountToUse.MELEE + 1.5) / (invasionArmyForceSize + 1))
         ) * 0.25
         spawnPriority.medic.priority = (1 - 
-            ((this.roomData.creepsByRole.medics.length + 1.5) / 2)
+            ((armyCountToUse.MEDIC + 1.5) / (invasionArmyForceSize + 1))
         ) * 0.20
 
         return spawnPriority

@@ -2,28 +2,62 @@ import { MyCreep } from './role.my-creep';
 
 export class Security extends MyCreep {
 
-    findWeakestHostileInRange(range) {
+    findWeakestDangerousHostileInRange(range) {
+        let dangerousHostileCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, range, {
+            filter: (creep) => { 
+                return creep.hits != null && (
+                    creep.getActiveBodyparts(ATTACK) > 0 || 
+                    creep.getActiveBodyparts(RANGED_ATTACK) > 0 || 
+                    creep.getActiveBodyparts(HEAL) > 0
+                )
+            }
+        })
+        let dangerousHostileStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, range, {
+            filter: (structure) => { 
+                return structure.hits != null && structure.hits > 0 && structure.structureType == STRUCTURE_TOWER
+            }
+        })
+
         let hostileCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, range, {
-            filter: (creep) => { return  creep.hits != null }
+            filter: (creep) => { return creep.hits != null }
         })
         let hostileStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, range, {
-            filter: (structure) => { return  structure.hits != null }
+            filter: (structure) => { return structure.hits != null && structure.hits > 0 }
         })
 
-        let weakestHostile = [...hostileCreeps, ...hostileStructures].reduce(
-            (prevHostile, hostile) => {
-                if(prevHostile == null) {
-                    return hostile
-                }
-                else if(hostile.hits < prevHostile.hits) {
-                    return hostile
-                }
-                return prevHostile
-            },
+        function reducer(prevHostile, hostile) {
+            if(prevHostile == null) {
+                return hostile
+            }
+            if(hostile.hits < prevHostile.hits) {
+                return hostile
+            }
+            return prevHostile
+        }
+
+        let weakestDangerousHostile = [...dangerousHostileCreeps, ...dangerousHostileStructures].reduce(
+            reducer,
             null
         )
+        if(
+            weakestDangerousHostile != null && 
+            this.pos.findPathTo(weakestDangerousHostile.pos).length <= range+1
+        ) {
+            return weakestDangerousHostile
+        }
 
-        return weakestHostile
+        let weakestHostile = [...hostileCreeps, ...hostileStructures].reduce(
+            reducer,
+            null
+        )
+        if(
+            weakestHostile != null && 
+            this.pos.findPathTo(weakestHostile.pos).length <= range+1
+        ) {
+            return weakestHostile
+        }
+
+        return this.pos.findClosestByPath([...hostileCreeps, ...hostileStructures])
     }
 
     findClosestHostile() {
@@ -77,14 +111,14 @@ export class Security extends MyCreep {
             return;
         }
 
-        let weakestHostile = this.findWeakestHostileInRange(3)
+        let weakestHostile = this.findWeakestDangerousHostileInRange(3)
         let isInRampart = this.pos.findInRange(FIND_MY_STRUCTURES, 0).find(
             (structure) => structure.structureType == STRUCTURE_RAMPART
         ) != null
 
         if(weakestHostile != null && isInRampart) {
             this.attackWithRightBodyPart(weakestHostile)
-            this.say('🔫');
+            this.say('🔫', true);
         }
         else {
             if(this.memory.dest == null || (Game.time % 25 == 0 && Math.random() < 0.05)) {
@@ -92,23 +126,23 @@ export class Security extends MyCreep {
                 this.memory.dest = rampart.pos
             }
             this.moveTo(new RoomPosition(this.memory.dest.x, this.memory.dest.y, this.memory.dest.roomName), {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-            this.say('🛡️');
+            this.say('🛡️', true);
         }
 	}
 
     // move around randomly, engage hostiles if they come near
     runPatrol() {
-        let weakestHostile = this.findWeakestHostileInRange(5)
+        let weakestHostile = this.findWeakestDangerousHostileInRange(5)
 
         if(weakestHostile != null) {
             if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
                 this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
             }
-            this.say('🔫');
+            this.say('🔫', true);
         }
         else {
             this.moveRandomlyInRoom()
-            this.say('🧿');
+            this.say('🧿', true);
         }
 	}
 
@@ -120,27 +154,27 @@ export class Security extends MyCreep {
             if(this.attackWithRightBodyPart(hostile) == ERR_NOT_IN_RANGE) {
                 this.moveTo(hostile, {reusePath: 5, visualizePathStyle: {stroke: '#ff0000'}});
             }
-            this.say('🔫');
+            this.say('🔫', true);
         }
         else {
             this.moveRandomlyInRoom()
-            this.say('💤');
+            this.say('💤', true);
         }
 	}
 
     // move around randomly from room to room, attack weak hostiles on sight
     runMaraud() {
-        let weakestHostile = this.findWeakestHostileInRange(20)
+        let weakestHostile = this.findWeakestDangerousHostileInRange(20)
 
         if(weakestHostile != null && weakestHostile.hits < this.hits) {
             if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
                 this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
             }
-            this.say('🔫');
+            this.say('🔫', true);
         }
         else {
             this.moveRandomlyBetweenRooms()
-            this.say('🧿');
+            this.say('🧿', true);
         }
 	}
 
@@ -156,25 +190,25 @@ export class Security extends MyCreep {
             
             if(this.hits/this.hitsMax < 0.33 && !isNearFlag) {
                 this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-                this.say('🩸');
+                this.say('🩸', true);
                 return;
             }
 
-            let weakestHostile = this.findWeakestHostileInRange(5)
+            let weakestHostile = this.findWeakestDangerousHostileInRange(5)
             if(weakestHostile != null) {
                 if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
                     this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
                 }
-                this.say('🔫');
+                this.say('🔫', true);
             }
             else {
                 this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-                this.say('⚡');
+                this.say('⚡', true);
             }
         }
         else {
             this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-            this.say('⚡');
+            this.say('⚡', true);
         }
 	}
 };

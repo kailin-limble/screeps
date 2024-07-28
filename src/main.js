@@ -9,12 +9,33 @@ module.exports.loop = function () {
     // benchmark
     const BENCH_TICKS = 300
     if(Game.time % BENCH_TICKS == 0) {
+        console.log(`------ GAME | tick ${Game.time} | population ${Object.keys(Game.creeps).length} ------`)
+    }
+
+    // global loop
+    if(Game.time % 50 == 0) {
+        let creepsModelCounts = {}
+        let viableRoomsCount = 0
+
         for (const name in Memory.creeps) {
             if (!(name in Game.creeps)) {
                 delete Memory.creeps[name];
             }
+            else {
+                if(creepsModelCounts[Game.creeps[name].memory.model] == null) {
+                    creepsModelCounts[Game.creeps[name].memory.model] = 0
+                }
+                creepsModelCounts[Game.creeps[name].memory.model]++
+            }
         }
-        console.log(`------ GAME | tick ${Game.time} | population ${Object.keys(Game.creeps).length} ------`)
+        Memory.creepsModelCounts = creepsModelCounts
+
+        for(const roomName in Game.rooms) {
+            if(Game.rooms[roomName].storage != null) {
+                viableRoomsCount++
+            }
+        }
+        Memory.viableRoomsCount = viableRoomsCount
     }
 
     // main loop

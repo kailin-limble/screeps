@@ -17,7 +17,7 @@ export class Dispatcher {
                     creep.run()
                     break;
                 case 'upgrader':
-                    creep.populateRoleActions(Upgrader)
+                    creep.populateRoleActions(Memory.securityAction != null ? Harvester : Upgrader)
                     creep.run()
                     break;
                 case 'builder':
@@ -45,12 +45,13 @@ export class Dispatcher {
                         creep.runGuard()
                     }
                     else {
-                        // try{
+                        try{
                             creep[Memory.securityAction]()
-                        // }
-                        // catch {
-                        //     creep.runGuard()
-                        // }
+                        }
+                        catch {
+                            console.log(`The security action ${Memory.securityAction} is not defined. Defaulting to runGuard`)
+                            creep.runGuard()
+                        }
                     }
                     break;
             }
