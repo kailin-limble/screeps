@@ -39,10 +39,10 @@ export class Medic extends MyCreep {
     }
 
     healWithCorrectRange(friendly) {
-        if(this.pos.inRangeTo(friendly, 1)) {
+        // if(this.pos.inRangeTo(friendly, 1)) {
             return this.heal(friendly)
-        }
-        return this.rangedHeal(friendly)
+        // }
+        // return this.rangedHeal(friendly)
     }
 
     // stay in ramparts, heal nearby friendlies. If there are no ramparts, just patrol. 
@@ -66,7 +66,7 @@ export class Medic extends MyCreep {
             this.say('💚', true);
         }
         else {
-            if(this.memory.dest == null || (Game.time % 25 == 0 && Math.random() < 0.05)) {
+            if(this.memory.dest == null || (Game.time % 25 == 0 && Math.random() < 0.25)) {
                 let rampart = myRamparts[Math.floor(Math.random() * myRamparts.length)]
                 this.memory.dest = rampart.pos
             }

@@ -9,6 +9,32 @@ export class Spawner {
             MELEE: [TOUGH, TOUGH, ATTACK, MOVE, ATTACK, MOVE],
             MEDIC: [TOUGH, MOVE, HEAL, HEAL, HEAL, MOVE],
         }
+        this.CHAMPIONS = {
+            RANGE: [
+                TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, 
+                MOVE, MOVE, MOVE, MOVE, RANGED_ATTACK, MOVE, 
+                RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
+                RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
+                RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
+                RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
+            ],
+            MELEE: [
+                TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, 
+                MOVE, MOVE, MOVE, MOVE, ATTACK, MOVE, 
+                ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
+                ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
+                ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
+                ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
+            ],
+            MEDIC: [
+                TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, 
+                MOVE, MOVE, MOVE, MOVE, HEAL, MOVE, 
+                HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, 
+                HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE,
+                HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, 
+                HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE
+            ],
+        }
         this.ENERGY = 3000 // energy per source per 300 tick cycle
         this.MINING_RATE = 150 // average energy mined per cycle per 1 work body part
 
@@ -170,7 +196,15 @@ export class Spawner {
 
     spawnBiggestCreepOfModel(model, memory, maxEnergy) {
         let tickBasedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
-        this.spawn.spawnCreep(this.getBiggestPossibleModel(model, maxEnergy), tickBasedName, {memory: memory});
+        if(
+            this.CHAMPIONS[memory.model] != null && 
+            this.getSpawnCost(this.CHAMPIONS[memory.model]) <= this.room.energyCapacityAvailable
+        ) {
+            this.spawn.spawnCreep(this.CHAMPIONS[memory.model], tickBasedName, {memory: memory});
+        }
+        else {
+            this.spawn.spawnCreep(this.getBiggestPossibleModel(model, maxEnergy), tickBasedName, {memory: memory});
+        }
     }
 
     spawnCreeps() {

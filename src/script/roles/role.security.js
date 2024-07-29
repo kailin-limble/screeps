@@ -3,6 +3,16 @@ import { MyCreep } from './role.my-creep';
 export class Security extends MyCreep {
 
     findWeakestDangerousHostileInRange(range) {
+        function reducer(prevHostile, hostile) {
+            if(prevHostile == null) {
+                return hostile
+            }
+            if(hostile.hits < prevHostile.hits) {
+                return hostile
+            }
+            return prevHostile
+        }
+
         let dangerousHostileCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, range, {
             filter: (creep) => { 
                 return creep.hits != null && (
@@ -18,23 +28,6 @@ export class Security extends MyCreep {
             }
         })
 
-        let hostileCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, range, {
-            filter: (creep) => { return creep.hits != null }
-        })
-        let hostileStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, range, {
-            filter: (structure) => { return structure.hits != null && structure.hits > 0 }
-        })
-
-        function reducer(prevHostile, hostile) {
-            if(prevHostile == null) {
-                return hostile
-            }
-            if(hostile.hits < prevHostile.hits) {
-                return hostile
-            }
-            return prevHostile
-        }
-
         let weakestDangerousHostile = [...dangerousHostileCreeps, ...dangerousHostileStructures].reduce(
             reducer,
             null
@@ -46,18 +39,25 @@ export class Security extends MyCreep {
             return weakestDangerousHostile
         }
 
+        let hostileCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, range, {
+            filter: (creep) => { return creep.hits != null }
+        })
+        let hostileStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, range, {
+            filter: (structure) => { return structure.hits != null && structure.hits > 0 }
+        })
+
         let weakestHostile = [...hostileCreeps, ...hostileStructures].reduce(
             reducer,
             null
         )
         if(
             weakestHostile != null && 
-            this.pos.findPathTo(weakestHostile.pos).length <= range+1
+            this.pos.findPathTo(weakestHostile.pos).length <= range*2
         ) {
             return weakestHostile
         }
 
-        return this.pos.findClosestByPath([...hostileCreeps, ...hostileStructures])
+        return null
     }
 
     findClosestHostile() {
@@ -121,7 +121,7 @@ export class Security extends MyCreep {
             this.say('🔫', true);
         }
         else {
-            if(this.memory.dest == null || (Game.time % 25 == 0 && Math.random() < 0.05)) {
+            if(this.memory.dest == null || (Game.time % 25 == 0 && Math.random() < 0.25)) {
                 let rampart = myRamparts[Math.floor(Math.random() * myRamparts.length)]
                 this.memory.dest = rampart.pos
             }
@@ -189,7 +189,7 @@ export class Security extends MyCreep {
             let isNearFlag = this.pos.inRangeTo(Game.flags['Invade'], 3) != null
             
             if(this.hits/this.hitsMax < 0.33 && !isNearFlag) {
-                this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+                this.moveTo(Game.flags['Invade'], {reusePath: 5, visualizePathStyle: {stroke: '#777777'}})
                 this.say('🩸', true);
                 return;
             }
@@ -197,18 +197,14 @@ export class Security extends MyCreep {
             let weakestHostile = this.findWeakestDangerousHostileInRange(5)
             if(weakestHostile != null) {
                 if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
+                    this.moveTo(weakestHostile, {reusePath: 5, visualizePathStyle: {stroke: '#ff0000'}});
                 }
                 this.say('🔫', true);
-            }
-            else {
-                this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-                this.say('⚡', true);
+                return;
             }
         }
-        else {
-            this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
-            this.say('⚡', true);
-        }
+
+        this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+        this.say('⚡', true);
 	}
 };
