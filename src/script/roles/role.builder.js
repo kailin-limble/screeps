@@ -53,7 +53,11 @@ export class Builder extends Worker {
 
             if(repairTarget != null) {
                 if(this.repair(repairTarget) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(repairTarget, {reusePath: 5, visualizePathStyle: {stroke: '#7777ff'}});
+                    this.moveTo(repairTarget, {
+						visualizePathStyle: {stroke: '#7777ff'},
+						range: 3,
+						costCallback: this.costCallbackAvoidRamparts.bind(this)
+					});
                 }
 				else {
 					this.storeRepairAction({targetId: repairTarget.id, ticks: 25})
@@ -67,7 +71,13 @@ export class Builder extends Worker {
             if(constructureSites.length) {
 				if(Utils.isSafeLocation(constructureSites[0].pos)) {
 					if(this.build(constructureSites[0]) == ERR_NOT_IN_RANGE) {
-						this.moveTo(constructureSites[0], {visualizePathStyle: {stroke: '#ffff00'}});
+						this.moveTo(
+							constructureSites[0], 
+							{
+								visualizePathStyle: {stroke: '#ffff00'}, 
+								range: 3,
+								costCallback: this.costCallbackAvoidRamparts.bind(this)
+							});
 					}
 					this.say('🚧');
 					return;
@@ -84,7 +94,14 @@ export class Builder extends Worker {
 
             if(repairTarget != null) {
                 if(this.repair(repairTarget) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(repairTarget, {reusePath: 5, visualizePathStyle: {stroke: '#7777ff'}});
+                    this.moveTo(
+						repairTarget, 
+						{
+							visualizePathStyle: {stroke: '#ffff00'}, 
+							range: 3,
+							costCallback: this.costCallbackAvoidRamparts.bind(this)
+						}
+					);
                 }
 				else {
 					this.storeRepairAction({targetId: repairTarget.id, ticks: 25})
@@ -98,6 +115,15 @@ export class Builder extends Worker {
 	    else {
             this.smartHarvest()
 	    }
+	}
+
+	costCallbackAvoidRamparts(roomName, costMatrix) {
+		const myRamparts = this.room.find(FIND_MY_STRUCTURES, {
+			filter: (structure) => { return structure.structureType == STRUCTURE_RAMPART }
+		})
+		for(const rampart of myRamparts) {
+			costMatrix.set(rampart.pos.x, rampart.pos.y, 25)
+		}
 	}
 
 	storeRepairAction(storeRepairAction) {

@@ -64,7 +64,7 @@ export class Utils {
         return (road != null || obstacle == null) && obstacleCreep == null;
     }
 
-    static isSafeLocation(pos) {
-        return pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0
+    static isSafeLocation(pos, range) {
+        return pos.findInRange(FIND_HOSTILE_CREEPS, range || 5).length == 0
     }
 }

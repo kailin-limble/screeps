@@ -55,9 +55,9 @@ export class Spawner {
         let optimalWorkerCount = this.room.memory.sources.mineableSlots + (this.room.memory.sources.count * this.room.memory.sources.minMineableSlot)/3
         let optimalWorkerSize = optimalWorkBodyParts / optimalWorkerCount
 
-        if(optimalWorkerSize > largestWorkerSize) {
+        if(largestWorkerSize < optimalWorkerSize*1.2) {
             optimalWorkerSize = largestWorkerSize
-            optimalWorkerCount = optimalWorkBodyParts / optimalWorkerSize
+            optimalWorkerCount = this.room.memory.sources.mineableSlots * 2
         }
 
         let optimalWorkerCost = optimalWorkerSize * singleWorkerCost
@@ -144,13 +144,13 @@ export class Spawner {
             ((this.roomData.creepsByRole.upgraders.length + 1) / (optimalWorkForce.count*0.20 + 1))
         ) * 0.90
         spawnPriority.range.priority = (1 - 
-            ((armyCountToUse.RANGE + 1.5) / (invasionArmyForceSize + 1))
+            ((armyCountToUse.RANGE || 0 + 1.5) / (invasionArmyForceSize + 1))
         ) * 0.30
         spawnPriority.melee.priority = (1 - 
-            ((armyCountToUse.MELEE + 1.5) / (invasionArmyForceSize + 1))
+            ((armyCountToUse.MELEE || 0 + 1.5) / (invasionArmyForceSize + 1))
         ) * 0.25
         spawnPriority.medic.priority = (1 - 
-            ((armyCountToUse.MEDIC + 1.5) / (invasionArmyForceSize + 1))
+            ((armyCountToUse.MEDIC || 0 + 1.5) / (invasionArmyForceSize + 1))
         ) * 0.20
 
         return spawnPriority
