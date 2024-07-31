@@ -19,7 +19,7 @@ export class Worker extends MyCreep {
             let safeUnoccupiedNonEmptySources = sources.filter(source =>
                 source.energy > 0 &&
                 Utils.hasAdjacentOpenning(source) &&
-                Utils.isSafeLocation(source.pos, 1)
+                Utils.isSafeLocation(source.pos, 2)
             )
             let closestSource = this.pos.findClosestByPath(safeUnoccupiedNonEmptySources)
             let moveErrCode = this.moveTo(closestSource, {reusePath: 5, visualizePathStyle: {stroke: '#777777'}})

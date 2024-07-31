@@ -5,6 +5,7 @@ export class Spawner {
         this.MODELS = {
             WORKER: [WORK, CARRY, MOVE],
             CLAIMER: [CLAIM, MOVE],
+            TRUCK: [CARRY, MOVE, CARRY, MOVE],
             RANGE: [TOUGH, RANGED_ATTACK, MOVE],
             MELEE: [TOUGH, TOUGH, ATTACK, MOVE, ATTACK, MOVE],
             MEDIC: [TOUGH, MOVE, HEAL, HEAL, HEAL, MOVE],
@@ -68,7 +69,7 @@ export class Spawner {
         }
     }
     
-    getInvasionArmyForceSize() {
+    getArmyForceSize() {
         if(Memory.securityAction == 'runInvade') {
             return 3 * (Memory.viableRoomsCount || 1)
         }
@@ -86,6 +87,13 @@ export class Spawner {
         }
     }
 
+    getRangerReinforcementCount() {
+        if(this.room.find(FIND_HOSTILE_CREEPS).length > 0) {
+            return 2
+        }
+        return 0
+    }
+
     getSpawnPriority() {
         // always start with a haverster
         if(this.roomData.creepsByRole.harvesters.length == 0) {
@@ -94,8 +102,9 @@ export class Spawner {
         }
 
         let optimalWorkForce = this.getOptimalWorkForce()
-        let invasionArmyForceSize = this.getInvasionArmyForceSize()
+        let armyForceSize = this.getArmyForceSize()
         let armyCountToUse = this.getArmyCountToUse()
+        let rangerReinforcementCount = this.getRangerReinforcementCount()
 
         let spawnPriority = {
             workerBuilder: {
@@ -144,13 +153,13 @@ export class Spawner {
             ((this.roomData.creepsByRole.upgraders.length + 1) / (optimalWorkForce.count*0.20 + 1))
         ) * 0.90
         spawnPriority.range.priority = (1 - 
-            ((armyCountToUse.RANGE || 0 + 1.5) / (invasionArmyForceSize + 1))
+            (((armyCountToUse.RANGE || 0) + 1.5) / (armyForceSize + rangerReinforcementCount + 1))
         ) * 0.30
         spawnPriority.melee.priority = (1 - 
-            ((armyCountToUse.MELEE || 0 + 1.5) / (invasionArmyForceSize + 1))
+            (((armyCountToUse.MELEE || 0) + 1.5) / (armyForceSize + 1))
         ) * 0.25
         spawnPriority.medic.priority = (1 - 
-            ((armyCountToUse.MEDIC || 0 + 1.5) / (invasionArmyForceSize + 1))
+            (((armyCountToUse.MEDIC || 0) + 1.5) / (armyForceSize + 1))
         ) * 0.20
 
         return spawnPriority

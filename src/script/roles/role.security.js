@@ -103,7 +103,12 @@ export class Security extends MyCreep {
     // stay in ramparts, attack hostiles if they come in range. If there are no ramparts, just patrol. 
     runGuard() {
         let myRamparts = this.room.find(FIND_MY_STRUCTURES, {
-            filter: (structure) => { return structure.structureType == STRUCTURE_RAMPART }
+            filter: (structure) => { 
+                return structure.structureType == STRUCTURE_RAMPART &&
+                    structure.pos.findInRange(FIND_SOURCES, 1) == null &&
+                    structure.pos.findInRange(FIND_MY_STRUCTURES, 0) == null &&
+                    structure.pos.findInRange(FIND_MY_CREEPS, 0) == null
+            }
         })
 
         if(myRamparts.length == 0) {            

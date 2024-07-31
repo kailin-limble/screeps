@@ -31,7 +31,7 @@ module.exports.loop = function () {
         Memory.creepsModelCounts = creepsModelCounts
 
         for(const roomName in Game.rooms) {
-            if(Game.rooms[roomName].storage != null) {
+            if(Game.rooms[roomName].storage != null && Game.rooms[roomName].storage.my) {
                 viableRoomsCount++
             }
         }
