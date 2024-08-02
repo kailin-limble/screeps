@@ -5,7 +5,7 @@ import { Utils } from '../utils';
 export class Worker extends MyCreep {
 
     smartHarvest() {
-        var sources = this.room.find(FIND_SOURCES);
+        var sources = this.room.find(FIND_SOURCES_ACTIVE);
 
         let harvestErrCode = 0
         for(let source of sources) {
@@ -17,7 +17,6 @@ export class Worker extends MyCreep {
 
         if(harvestErrCode == ERR_NOT_IN_RANGE || harvestErrCode == ERR_NOT_ENOUGH_ENERGY) {
             let safeUnoccupiedNonEmptySources = sources.filter(source =>
-                source.energy > 0 &&
                 Utils.hasAdjacentOpenning(source) &&
                 Utils.isSafeLocation(source.pos, 2)
             )

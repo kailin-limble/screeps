@@ -48,7 +48,11 @@ export class Medic extends MyCreep {
     // stay in ramparts, heal nearby friendlies. If there are no ramparts, just patrol. 
     runGuard() {
         let myRamparts = this.room.find(FIND_MY_STRUCTURES, {
-            filter: (structure) => { return structure.structureType == STRUCTURE_RAMPART }
+            filter: (structure) => { 
+                return structure.structureType == STRUCTURE_RAMPART &&
+                    structure.pos.findInRange(FIND_SOURCES, 1).length == 0 &&
+                    structure.pos.findInRange(FIND_MY_CREEPS, 0).length == 0
+            }
         })
 
         if(myRamparts.length == 0) {            

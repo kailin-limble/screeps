@@ -105,9 +105,8 @@ export class Security extends MyCreep {
         let myRamparts = this.room.find(FIND_MY_STRUCTURES, {
             filter: (structure) => { 
                 return structure.structureType == STRUCTURE_RAMPART &&
-                    structure.pos.findInRange(FIND_SOURCES, 1) == null &&
-                    structure.pos.findInRange(FIND_MY_STRUCTURES, 0) == null &&
-                    structure.pos.findInRange(FIND_MY_CREEPS, 0) == null
+                    structure.pos.findInRange(FIND_SOURCES, 1).length == 0 &&
+                    structure.pos.findInRange(FIND_MY_CREEPS, 0).length == 0
             }
         })
 
