@@ -11,6 +11,11 @@ export class Harvester extends Worker {
 	    }
 
 	    if(this.memory.depositing) {
+            if(!this.isInHomeRoom()) {
+                this.returnToHomeRoomIfOwned()
+                return;
+            }
+            
             var targets = this.room.find(FIND_MY_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_EXTENSION ||

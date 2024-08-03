@@ -51,7 +51,10 @@ export class Medic extends MyCreep {
             filter: (structure) => { 
                 return structure.structureType == STRUCTURE_RAMPART &&
                     structure.pos.findInRange(FIND_SOURCES, 1).length == 0 &&
-                    structure.pos.findInRange(FIND_MY_CREEPS, 0).length == 0
+                    structure.pos.findInRange(FIND_MY_CREEPS, 0).length == 0 &&
+                    structure.pos.findInRange(FIND_MY_STRUCTURES, 0).filter(
+                        structure => OBSTACLE_OBJECT_TYPES.includes(structure.structureType)
+                    ).length == 0
             }
         })
 

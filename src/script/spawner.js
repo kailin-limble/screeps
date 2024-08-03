@@ -1,3 +1,5 @@
+import { Utils } from './utils';
+
 export class Spawner {
 
     constructor(room, roomData) {
@@ -88,7 +90,9 @@ export class Spawner {
     }
 
     getRangerReinforcementCount() {
-        if(this.room.find(FIND_HOSTILE_CREEPS).length > 0) {
+        if(this.room.find(FIND_HOSTILE_CREEPS, {
+            filter: (creep) => !Utils.ALLIES.includes(creep.owner.username)
+        }).length > 0) {
             return 2
         }
         return 0
@@ -110,21 +114,21 @@ export class Spawner {
             workerBuilder: {
                 priority: 0,
                 action: () => this.spawnBiggestCreepOfModel(
-                    this.MODELS.WORKER, {model: 'WORKER', role: 'builder'}, 
+                    this.MODELS.WORKER, {model: 'WORKER', role: 'builder', homeRoom: this.room.name}, 
                     optimalWorkForce.cost
                 )
             },
             workerUpgrader: {
                 priority: 0,
                 action: () => this.spawnBiggestCreepOfModel(
-                    this.MODELS.WORKER, {model: 'WORKER', role: 'upgrader'}, 
+                    this.MODELS.WORKER, {model: 'WORKER', role: 'upgrader', homeRoom: this.room.name}, 
                     optimalWorkForce.cost
                 )
             },
             workerHarvester: {
                 priority: 0,
                 action: () => this.spawnBiggestCreepOfModel(
-                    this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'}, 
+                    this.MODELS.WORKER, {model: 'WORKER', role: 'harvester', homeRoom: this.room.name}, 
                     optimalWorkForce.cost
                 )
             },
@@ -199,20 +203,20 @@ export class Spawner {
     }
 
     spawnSmallestCreepOfModel(model, memory) {
-        let tickBasedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
-        this.spawn.spawnCreep(model, tickBasedName, {memory: memory});
+        let name = `${this.room.name || ''}-${memory.model || ''}-${memory.role || ''}-${String(Game.time % 1000000000).padStart(9, '0')}`
+        this.spawn.spawnCreep(model, name, {memory: {memory}});
     }
 
     spawnBiggestCreepOfModel(model, memory, maxEnergy) {
-        let tickBasedName = `${memory.model || '-'}_${memory.role || '-'}_${String(Game.time % 1000000000).padStart(9, '0')}`
+        let name = `${this.room.name || ''}-${memory.model || ''}-${memory.role || ''}-${String(Game.time % 1000000000).padStart(9, '0')}`
         if(
             this.CHAMPIONS[memory.model] != null && 
             this.getSpawnCost(this.CHAMPIONS[memory.model]) <= this.room.energyCapacityAvailable
         ) {
-            this.spawn.spawnCreep(this.CHAMPIONS[memory.model], tickBasedName, {memory: memory});
+            this.spawn.spawnCreep(this.CHAMPIONS[memory.model], name, {memory: memory});
         }
         else {
-            this.spawn.spawnCreep(this.getBiggestPossibleModel(model, maxEnergy), tickBasedName, {memory: memory});
+            this.spawn.spawnCreep(this.getBiggestPossibleModel(model, maxEnergy), name, {memory: memory});
         }
     }
 

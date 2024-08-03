@@ -12,6 +12,11 @@ export class Upgrader extends Worker {
 	    }
 
 	    if(this.memory.upgrading) {
+            if(!this.isInHomeRoom()) {
+                this.returnToHomeRoomIfOwned()
+                return;
+            }
+            
             if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
                 this.moveTo(this.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
             }

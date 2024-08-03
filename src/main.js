@@ -139,7 +139,9 @@ module.exports.loop = function () {
                 continue;
             }
 
-            var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+            var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+                filter: (creep) => !Utils.ALLIES.includes(creep.owner.username)
+            });
             if(closestHostile) {
                 tower.attack(closestHostile);
                 continue;

@@ -65,6 +65,10 @@ export class Utils {
     }
 
     static isSafeLocation(pos, range) {
-        return pos.findInRange(FIND_HOSTILE_CREEPS, range || 5).length == 0
+        return pos.findInRange(FIND_HOSTILE_CREEPS, range || 5).filter(
+            creep => !Utils.ALLIES.includes(creep.owner.username)
+        ).length == 0
     }
 }
+
+Utils.ALLIES = ['Xarroc', 'matt', 'sonny']

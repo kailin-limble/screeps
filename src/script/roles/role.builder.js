@@ -13,6 +13,11 @@ export class Builder extends Worker {
 	    }
 
 	    if(this.memory.building) {
+            if(!this.isInHomeRoom()) {
+                this.returnToHomeRoomIfOwned()
+                return;
+            }
+
 			if(this.performStoredRepairAction()) {
 				return;
 			}
