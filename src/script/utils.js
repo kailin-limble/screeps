@@ -64,11 +64,17 @@ export class Utils {
         return (road != null || obstacle == null) && obstacleCreep == null;
     }
 
+    static isPosOnRoomEdge(pos) {
+        return pos.x == 0 || pos.x == 49 || pos.y == 0 || pos.y == 49;
+    }
+
     static isSafeLocation(pos, range) {
         return pos.findInRange(FIND_HOSTILE_CREEPS, range || 5).filter(
-            creep => !Utils.ALLIES.includes(creep.owner.username)
+            creep => !this.getAllies().includes(creep.owner.username)
         ).length == 0
     }
-}
 
-Utils.ALLIES = ['Xarroc', 'matt', 'sonny']
+    static getAllies() {
+        return Memory.allies || []
+    }
+}

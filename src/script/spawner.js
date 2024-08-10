@@ -58,7 +58,7 @@ export class Spawner {
         let optimalWorkerCount = this.room.memory.sources.mineableSlots + (this.room.memory.sources.count * this.room.memory.sources.minMineableSlot)/3
         let optimalWorkerSize = optimalWorkBodyParts / optimalWorkerCount
 
-        if(largestWorkerSize < optimalWorkerSize*1.2) {
+        if(largestWorkerSize <= optimalWorkerSize) {
             optimalWorkerSize = largestWorkerSize
             optimalWorkerCount = this.room.memory.sources.mineableSlots * 2
         }
@@ -91,7 +91,7 @@ export class Spawner {
 
     getRangerReinforcementCount() {
         if(this.room.find(FIND_HOSTILE_CREEPS, {
-            filter: (creep) => !Utils.ALLIES.includes(creep.owner.username)
+            filter: (creep) => !Utils.getAllies().includes(creep.owner.username)
         }).length > 0) {
             return 2
         }
@@ -102,7 +102,7 @@ export class Spawner {
         // always start with a haverster
         if(this.roomData.creepsByRole.harvesters.length == 0) {
             this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'}, this.room.energyAvailable)
-            return;
+            return null;
         }
 
         let optimalWorkForce = this.getOptimalWorkForce()
@@ -163,7 +163,7 @@ export class Spawner {
             (((armyCountToUse.MELEE || 0) + 1.5) / (armyForceSize + 1))
         ) * 0.25
         spawnPriority.medic.priority = (1 - 
-            (((armyCountToUse.MEDIC || 0) + 1.5) / (armyForceSize + 1))
+            (((armyCountToUse.MEDIC || 0) + 1.5) / ((Memory.securityAction == 'runInvade' ? armyForceSize : 0) + 1))
         ) * 0.20
 
         return spawnPriority
@@ -222,6 +222,10 @@ export class Spawner {
 
     spawnCreeps() {
         const spawnPriority = this.getSpawnPriority()
+
+        if(spawnPriority == null) {
+            return
+        }
 
         let keyOfHighestPriorityNotZero = Object.keys(spawnPriority).reduce((a, b) => spawnPriority[a].priority > spawnPriority[b].priority ? a : b);
 

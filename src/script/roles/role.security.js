@@ -21,7 +21,7 @@ export class Security extends MyCreep {
                     creep.getActiveBodyparts(RANGED_ATTACK) > 0 || 
                     creep.getActiveBodyparts(HEAL) > 0
                 ) && 
-                !Utils.ALLIES.includes(creep.owner.username)
+                !Utils.getAllies().includes(creep.owner.username)
             }
         })
         let dangerousHostileStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, range, {
@@ -29,7 +29,7 @@ export class Security extends MyCreep {
                 return structure.hits != null && 
                 structure.hits > 0 && 
                 structure.structureType == STRUCTURE_TOWER && 
-                !Utils.ALLIES.includes(structure.owner.username)
+                !Utils.getAllies().includes(structure.owner.username)
             }
         })
 
@@ -46,11 +46,11 @@ export class Security extends MyCreep {
 
         let hostileCreeps = this.pos.findInRange(FIND_HOSTILE_CREEPS, range, {
             filter: (creep) => { return creep.hits != null && 
-                !Utils.ALLIES.includes(creep.owner.username) }
+                !Utils.getAllies().includes(creep.owner.username) }
         })
         let hostileStructures = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, range, {
             filter: (structure) => { return structure.hits != null && structure.hits > 0 && 
-                !Utils.ALLIES.includes(structure.owner.username) }
+                !Utils.getAllies().includes(structure.owner.username) }
         })
 
         let weakestHostile = [...hostileCreeps, ...hostileStructures].reduce(
@@ -70,11 +70,11 @@ export class Security extends MyCreep {
     findClosestHostile() {
         let hostileCreep = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
             filter: (creep) => creep.hits != null  && 
-            !Utils.ALLIES.includes(creep.owner.username)
+            !Utils.getAllies().includes(creep.owner.username)
         })
         let hostileStructure = this.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
             filter: (structure) => structure.hits != null  && 
-            !Utils.ALLIES.includes(structure.owner.username)
+            !Utils.getAllies().includes(structure.owner.username)
         })
 
         return hostileCreep || hostileStructure
@@ -148,7 +148,7 @@ export class Security extends MyCreep {
 
     // move around randomly, engage hostiles if they come near
     runPatrol() {
-        let weakestHostile = this.findWeakestDangerousHostileInRange(25)
+        let weakestHostile = this.findWeakestDangerousHostileInRange(5)
 
         if(weakestHostile != null) {
             if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
@@ -210,7 +210,7 @@ export class Security extends MyCreep {
                 return;
             }
 
-            let weakestHostile = this.findWeakestDangerousHostileInRange(5)
+            let weakestHostile = this.findWeakestDangerousHostileInRange(3)
             if(weakestHostile != null) {
                 if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
                     this.moveTo(weakestHostile, {reusePath: 5, visualizePathStyle: {stroke: '#ff0000'}});

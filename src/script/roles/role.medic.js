@@ -1,4 +1,5 @@
 import { MyCreep } from './role.my-creep';
+import { Utils } from '../utils';
 
 export class Medic extends MyCreep {
 
@@ -123,9 +124,8 @@ export class Medic extends MyCreep {
 
         if(this.pos.roomName == Game.flags['Invade'].pos.roomName) {
             let isNearFlag = this.pos.inRangeTo(Game.flags['Invade'], 3) != null
-            let isOnRoomEdge = this.pos.x == 0 || this.pos.x == 49 || this.pos.y == 0 || this.pos.y == 49
             
-            if(this.hits/this.hitsMax < 0.33 && !isNearFlag || isOnRoomEdge) {
+            if(this.hits/this.hitsMax < 0.33 && !isNearFlag || Utils.isPosOnRoomEdge(this.pos)) {
                 this.moveTo(Game.flags['Invade'], {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
                 this.say('🩸', true);
                 return;

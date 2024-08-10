@@ -33,7 +33,10 @@ export class Worker extends MyCreep {
     }
 
     isInHomeRoom() {
-        if(this.memory.homeRoom == null || this.pos.roomName == this.memory.homeRoom) {
+        if(
+            (this.memory.homeRoom == null || this.pos.roomName == this.memory.homeRoom) && 
+            !Utils.isPosOnRoomEdge(this.pos)
+        ) {
             return true
         }
         return false
