@@ -81,6 +81,9 @@ module.exports.loop = function () {
                 upgraders: room.find(FIND_MY_CREEPS, {
                     filter: { memory: { role: 'upgrader' } }
                 }),
+                trucks: room.find(FIND_MY_CREEPS, {
+                    filter: { memory: { role: 'truck' } }
+                }),
                 ranges: room.find(FIND_MY_CREEPS, {
                     filter: { memory: { model: 'RANGE' } }
                 }),

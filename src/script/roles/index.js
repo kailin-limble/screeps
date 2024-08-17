@@ -3,5 +3,7 @@ export * from "./role.worker";
 export * from "./role.builder";
 export * from "./role.harvester";
 export * from "./role.upgrader";
+export * from "./role.claimer";
+export * from "./role.truck";
 export * from "./role.security";
 export * from "./role.medic";

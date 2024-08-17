@@ -3,16 +3,16 @@ import { Worker } from './role.worker';
 export class Harvester extends Worker {
 
     run() {
-	    if(this.memory.depositing && this.store[RESOURCE_ENERGY] == 0) {
-            this.memory.depositing = false;
+	    if(this.memory.working && this.store[RESOURCE_ENERGY] == 0) {
+            this.memory.working = false;
 	    }
-	    if(!this.memory.depositing && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 35)) {
-	        this.memory.depositing = true;
+	    if(!this.memory.working && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 35)) {
+	        this.memory.working = true;
 	    }
 
-	    if(this.memory.depositing) {
+	    if(this.memory.working) {
             if(!this.isInHomeRoom()) {
-                this.returnToHomeRoomIfOwned()
+                this.returnToHomeRoom()
                 return;
             }
             
@@ -50,7 +50,7 @@ export class Harvester extends Worker {
             var storages = this.room.find(FIND_MY_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_STORAGE) &&
-                            structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+                            structure.store.getFreeCapacity(RESOURCE_ENERGY) > 750000;
                 }
             });
             if(storages.length > 0) {

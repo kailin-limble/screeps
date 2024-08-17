@@ -42,16 +42,23 @@ export class Worker extends MyCreep {
         return false
     }
 
-    returnToHomeRoomIfOwned() {
+    returnToHomeRoom() {
         const homeRoom = Game.rooms[this.memory.homeRoom]
         if(homeRoom != null && homeRoom.controller != null) {
             this.moveTo(homeRoom.controller)
+        }
+        else {
+            this.moveTo(new RoomPosition(25, 25, this.memory.homeRoom))
         }
     }
 
     fallbackAction() {        
         if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
-            this.moveTo(this.room.controller, {reusePath: 5, visualizePathStyle: {stroke: '#770077'}});
+            this.moveTo(this.room.controller, {
+                reusePath: 5, 
+                range: 3,
+                visualizePathStyle: {stroke: '#770077'}
+            });
         }
         if(this.room.controller != null && this.room.controller.level < 8) {
             this.say('🔼');

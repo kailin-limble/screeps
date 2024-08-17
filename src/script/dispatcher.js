@@ -1,4 +1,4 @@
-import { MyCreep, Harvester, Upgrader, Builder, Security, Medic } from './roles/index.js';
+import { MyCreep, Harvester, Upgrader, Builder, Claimer, Truck, Security, Medic } from './roles/index.js';
 
 export class Dispatcher {
 
@@ -17,11 +17,19 @@ export class Dispatcher {
                     creep.run()
                     break;
                 case 'upgrader':
-                    creep.populateRoleActions(Memory.securityAction != null ? Harvester : Upgrader)
+                    creep.populateRoleActions(Memory.securityAction == 'runInvade' ? Harvester : Upgrader)
                     creep.run()
                     break;
                 case 'builder':
                     creep.populateRoleActions(Builder)
+                    creep.run()
+                    break;
+                case 'claimer':
+                    creep.populateRoleActions(Claimer)
+                    creep.run()
+                    break;
+                case 'truck':
+                    creep.populateRoleActions(Truck)
                     creep.run()
                     break;
                 case 'security':

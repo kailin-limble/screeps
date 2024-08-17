@@ -141,7 +141,7 @@ export class Security extends MyCreep {
                 let rampart = myRamparts[Math.floor(Math.random() * myRamparts.length)]
                 this.memory.dest = rampart.pos
             }
-            this.moveTo(new RoomPosition(this.memory.dest.x, this.memory.dest.y, this.memory.dest.roomName), {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+            this.moveTo(new RoomPosition(this.memory.dest.x, this.memory.dest.y, this.memory.dest.roomName), {reusePath: 50, visualizePathStyle: {stroke: '#777777'}, maxRooms: 1})
             this.say('🛡️', true);
         }
 	}
@@ -152,7 +152,7 @@ export class Security extends MyCreep {
 
         if(weakestHostile != null) {
             if(this.attackWithRightBodyPart(weakestHostile) == ERR_NOT_IN_RANGE) {
-                this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}});
+                this.moveTo(weakestHostile, {reusePath: 50, visualizePathStyle: {stroke: '#ff0000'}, maxRooms: 1});
             }
             this.say('🔫', true);
         }

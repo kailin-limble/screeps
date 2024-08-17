@@ -5,16 +5,16 @@ export class Builder extends Worker {
 
     run() {
 
-	    if(this.memory.building && this.store[RESOURCE_ENERGY] == 0) {
-            this.memory.building = false;
+	    if(this.memory.working && this.store[RESOURCE_ENERGY] == 0) {
+            this.memory.working = false;
 	    }
-	    if(!this.memory.building && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 35)) {
-	        this.memory.building = true;
+	    if(!this.memory.working && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 35)) {
+	        this.memory.working = true;
 	    }
 
-	    if(this.memory.building) {
+	    if(this.memory.working) {
             if(!this.isInHomeRoom()) {
-                this.returnToHomeRoomIfOwned()
+                this.returnToHomeRoom()
                 return;
             }
 

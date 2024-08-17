@@ -78,7 +78,7 @@ export class Medic extends MyCreep {
                 let rampart = myRamparts[Math.floor(Math.random() * myRamparts.length)]
                 this.memory.dest = rampart.pos
             }
-            this.moveTo(new RoomPosition(this.memory.dest.x, this.memory.dest.y, this.memory.dest.roomName), {reusePath: 50, visualizePathStyle: {stroke: '#777777'}})
+            this.moveTo(new RoomPosition(this.memory.dest.x, this.memory.dest.y, this.memory.dest.roomName), {reusePath: 50, visualizePathStyle: {stroke: '#777777'}, maxRooms: 1})
             this.say('🚑', true);
         }
 	}
@@ -95,7 +95,7 @@ export class Medic extends MyCreep {
         let closestHurtFriendly = this.findClosestHurtFriendly()
         if(closestHurtFriendly != null) {
             if(this.healWithCorrectRange(closestHurtFriendly) == ERR_NOT_IN_RANGE) {
-                this.moveTo(closestHurtFriendly, {reusePath: 50, visualizePathStyle: {stroke: '#00ff00'}});
+                this.moveTo(closestHurtFriendly, {reusePath: 50, visualizePathStyle: {stroke: '#00ff00'}, maxRooms: 1});
             }
             this.say('💚', true);
             return;

@@ -109,6 +109,12 @@ export class Spawner {
         let armyForceSize = this.getArmyForceSize()
         let armyCountToUse = this.getArmyCountToUse()
         let rangerReinforcementCount = this.getRangerReinforcementCount()
+        let storage = this.room.find(FIND_MY_STRUCTURES, {
+            filter: (structure) => {
+                return structure.structureType == STRUCTURE_STORAGE &&
+                        structure.store[RESOURCE_ENERGY] > 100;
+            }
+        })[0]
 
         let spawnPriority = {
             workerBuilder: {
@@ -130,6 +136,13 @@ export class Spawner {
                 action: () => this.spawnBiggestCreepOfModel(
                     this.MODELS.WORKER, {model: 'WORKER', role: 'harvester', homeRoom: this.room.name}, 
                     optimalWorkForce.cost
+                )
+            },
+            truck: {
+                priority: 0,
+                action: () => this.spawnBiggestCreepOfModel(
+                    this.MODELS.TRUCK, {model: 'TRUCK', role: 'truck', homeRoom: this.room.name},
+                    this.room.energyCapacityAvailable * 0.67
                 )
             },
             range: {
@@ -156,6 +169,9 @@ export class Spawner {
         spawnPriority.workerUpgrader.priority = (1 - 
             ((this.roomData.creepsByRole.upgraders.length + 1) / (optimalWorkForce.count*0.20 + 1))
         ) * 0.90
+        spawnPriority.truck.priority = (1 - 
+            ((this.roomData.creepsByRole.trucks.length + 1) / ((Memory.securityAction == 'runInvade' && storage != null ? 1 : 0) + 1))
+        ) * 0.50
         spawnPriority.range.priority = (1 - 
             (((armyCountToUse.RANGE || 0) + 1.5) / (armyForceSize + rangerReinforcementCount + 1))
         ) * 0.30
