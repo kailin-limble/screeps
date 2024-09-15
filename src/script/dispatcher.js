@@ -7,6 +7,7 @@ export class Dispatcher {
     }
 
     dispatchRolesToCreeps() {
+        let hasTruckDepositor = false
         for(var name in this.roomData.creeps) {
             var creep = this.roomData.creeps[name];
             creep.populateRoleActions = MyCreep.prototype.populateRoleActions.bind(creep)
@@ -30,7 +31,24 @@ export class Dispatcher {
                     break;
                 case 'truck':
                     creep.populateRoleActions(Truck)
-                    creep.run()
+                    
+                    let links = creep.room.find(FIND_MY_STRUCTURES, {
+                        filter: (structure) => {
+                            return structure.structureType == STRUCTURE_LINK
+                        }
+                    })
+                    if(links.length >= 2) {
+                        if(hasTruckDepositor) {
+                            creep.convey()
+                        }
+                        else {
+                            creep.run();
+                            hasTruckDepositor = true
+                        }
+                    }
+                    else {
+                        creep.run()
+                    }
                     break;
                 case 'security':
                     creep.populateRoleActions(Security)

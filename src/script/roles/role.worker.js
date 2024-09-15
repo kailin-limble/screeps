@@ -22,12 +22,28 @@ export class Worker extends MyCreep {
             )
             let closestSource = this.pos.findClosestByPath(safeUnoccupiedNonEmptySources)
             let moveErrCode = this.moveTo(closestSource, {reusePath: 5, visualizePathStyle: {stroke: '#777777'}})
+            if(moveErrCode == OK) {
+	            this.say('⛏️');
+                return;
+            }
             if(moveErrCode == ERR_NO_PATH) {
                 console.log("source inaccesible")
 	            this.say('❌');
             }
             else {
-	            this.say('⛏️');
+	            this.say('💤');
+            }
+        }
+
+        let storages = this.room.find(FIND_MY_STRUCTURES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_STORAGE) &&
+                        structure.store.getUsedCapacity(RESOURCE_ENERGY) > 9999;
+            }
+        });
+        if(storages.length > 0) {
+            if(this.withdraw(storages[0], RESOURCE_ENERGY)) {
+                this.moveTo(storages[0], {reusePath: 5, visualizePathStyle: {stroke: '#777777'}})
             }
         }
     }

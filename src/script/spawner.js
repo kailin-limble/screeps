@@ -115,6 +115,11 @@ export class Spawner {
                         structure.store[RESOURCE_ENERGY] > 100;
             }
         })[0]
+        let links = this.room.find(FIND_MY_STRUCTURES, {
+            filter: (structure) => {
+                return structure.structureType == STRUCTURE_LINK
+            }
+        })
 
         let spawnPriority = {
             workerBuilder: {
@@ -142,7 +147,7 @@ export class Spawner {
                 priority: 0,
                 action: () => this.spawnBiggestCreepOfModel(
                     this.MODELS.TRUCK, {model: 'TRUCK', role: 'truck', homeRoom: this.room.name},
-                    this.room.energyCapacityAvailable * 0.67
+                    800
                 )
             },
             range: {
@@ -170,7 +175,7 @@ export class Spawner {
             ((this.roomData.creepsByRole.upgraders.length + 1) / (optimalWorkForce.count*0.20 + 1))
         ) * 0.90
         spawnPriority.truck.priority = (1 - 
-            ((this.roomData.creepsByRole.trucks.length + 1) / ((Memory.securityAction == 'runInvade' && storage != null ? 1 : 0) + 1))
+            ((this.roomData.creepsByRole.trucks.length + 1) / ((Memory.securityAction == 'runInvade' && storage != null || links.length >= 2 ? 2 : 0) + 1))
         ) * 0.50
         spawnPriority.range.priority = (1 - 
             (((armyCountToUse.RANGE || 0) + 1.5) / (armyForceSize + rangerReinforcementCount + 1))

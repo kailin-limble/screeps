@@ -15,6 +15,17 @@ export class Harvester extends Worker {
                 this.returnToHomeRoom()
                 return;
             }
+
+            let links = this.room.find(FIND_MY_STRUCTURES, {
+                filter: (structure) => {
+                    return (structure.structureType == STRUCTURE_LINK)
+                }
+            });
+            if(links.length >= 2) {
+                if(this.depositeToLink(links)) {
+                    return;
+                }
+            }
             
             var targets = this.room.find(FIND_MY_STRUCTURES, {
                 filter: (structure) => {
@@ -68,4 +79,14 @@ export class Harvester extends Worker {
             this.smartHarvest()
 	    }
 	}
+
+    depositeToLink(links) {
+        let closestLink = this.pos.findClosestByRange(links, 3);
+        if(this.pos.findPathTo(closestLink).length <= 2) {
+            if(this.transfer(closestLink, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                this.moveTo(closestLink, {reusePath: 5, visualizePathStyle: {stroke: '#ffffff'}})
+            }
+            return true;
+        }
+    }
 };

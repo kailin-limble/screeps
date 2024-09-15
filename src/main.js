@@ -1,5 +1,6 @@
 import { Spawner } from './script/spawner.js';
 import { Dispatcher } from './script/dispatcher.js';
+import { RoomManager } from './script/room-manager.js';
 
 import { Utils } from './script/utils';
 import { map } from './script/construction-map.js';
@@ -122,6 +123,10 @@ module.exports.loop = function () {
         // dispatch roles to creeps
         const dispatcher = new Dispatcher(roomData)
         dispatcher.dispatchRolesToCreeps()
+
+        // room actions
+        const roomManager = new RoomManager(room, roomData)
+        roomManager.runRoomActions()
 
         // assign roles to towers
         var towers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
