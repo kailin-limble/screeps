@@ -2,6 +2,7 @@
   "dependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/screeps": "^3.3.8",
-    "rollup": "^4.18.0"
+    "rollup": "^4.18.0",
+    "screeps-steamless-client": "^1.2.1"
   }
 }
