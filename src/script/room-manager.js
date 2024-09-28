@@ -38,12 +38,16 @@ export class RoomManager {
             }
         });
 
-        if(storageLinks.length > 0)
-        for(let transferLink of transferLinks) {
-            if(transferLink.store[RESOURCE_ENERGY] >= transferLink.store.getCapacity()/2 &&
-                storageLinks[0].store[RESOURCE_ENERGY] <= storageLinks[0].store.getCapacity()/2
-            ) {
-                transferLink.transferEnergy(storageLinks[0]);
+        if(storageLinks.length > 0) {
+            for(let transferLink of transferLinks) {
+                if(transferLink.store[RESOURCE_ENERGY] >= transferLink.store.getCapacity()/2 &&
+                    storageLinks[0].store[RESOURCE_ENERGY] <= storageLinks[0].store.getCapacity()/2
+                ) {
+                    transferLink.transferEnergy(storageLinks[0], Math.min([
+                        transferLink.store[RESOURCE_ENERGY],
+                        storageLinks[0].store[RESOURCE_ENERGY]
+                    ]));
+                }
             }
         }
     }

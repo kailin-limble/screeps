@@ -41,7 +41,7 @@ export class Builder extends Worker {
 				else if(target.hits < 99900 && target.hits / target.hitsMax < 0.50) {
 					repairTargetsPriority2.push(target)
 				}
-				else if(target.hits < 999900 && target.hits / target.hitsMax < 0.75) {
+				else if(target.hits < 199900 && target.hits / target.hitsMax < 0.75) {
 					repairTargetsPriority3.push(target)
 				}
 			}
@@ -50,10 +50,10 @@ export class Builder extends Worker {
 
 			//repair priority 0 and 1
 			if(repairTargetsPriority0.length > 0) {
-				repairTarget = this.pos.findClosestByPath(repairTargetsPriority0)
+				repairTarget = this.pos.findClosestByPath(repairTargetsPriority0, {range: 3}) || repairTargetsPriority0[0]
 			}
 			else if(repairTargetsPriority1.length > 0) {
-				repairTarget = this.pos.findClosestByPath(repairTargetsPriority1)
+				repairTarget = this.pos.findClosestByPath(repairTargetsPriority1, {range: 3}) || repairTargetsPriority1[0]
 			}
 
             if(repairTarget != null) {
@@ -91,10 +91,10 @@ export class Builder extends Worker {
 			
 			//repair priority 2 and 3
 			if(repairTargetsPriority2.length > 0) {
-				repairTarget = this.pos.findClosestByPath(repairTargetsPriority2)
+				repairTarget = this.pos.findClosestByPath(repairTargetsPriority2, {range: 3}) || repairTargetsPriority2[0]
 			}
 			else if(repairTargetsPriority3.length > 0) {
-				repairTarget = this.pos.findClosestByPath(repairTargetsPriority3)
+				repairTarget = this.pos.findClosestByPath(repairTargetsPriority3, {range: 3}) || repairTargetsPriority3[0]
 			}
 
             if(repairTarget != null) {

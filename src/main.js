@@ -1,6 +1,7 @@
 import { Spawner } from './script/spawner.js';
 import { Dispatcher } from './script/dispatcher.js';
 import { RoomManager } from './script/room-manager.js';
+import { TowerOperator } from './script/tower-operator.js';
 
 import { Utils } from './script/utils';
 import { map } from './script/construction-map.js';
@@ -128,32 +129,8 @@ module.exports.loop = function () {
         const roomManager = new RoomManager(room, roomData)
         roomManager.runRoomActions()
 
-        // assign roles to towers
-        var towers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
-        for(const tower of towers) {
-            var closestHurtCreep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
-                filter: (creep) => (creep.hits < creep.hitsMax && creep.hits < 900)
-            });
-            if(closestHurtCreep) {
-                tower.heal(closestHurtCreep);
-                continue;
-            }
-
-            var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => (structure.hits < structure.hitsMax && structure.hits < 9900 && structure.hits / structure.hitsMax < 0.50)
-            });
-            if(closestDamagedStructure) {
-                tower.repair(closestDamagedStructure);
-                continue;
-            }
-
-            var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-                filter: (creep) => !Utils.getAllies().includes(creep.owner.username)
-            });
-            if(closestHostile) {
-                tower.attack(closestHostile);
-                continue;
-            }
-        }
+        // operate towers
+        const towerOperator = new TowerOperator(room, roomData)
+        towerOperator.runTowers()
     }
 }
