@@ -69,12 +69,12 @@ export class Utils {
     }
 
     static isSafeLocation(pos, range) {
-        return pos.findInRange(FIND_HOSTILE_CREEPS, range || 5).filter(
+        return pos.findInRange(FIND_HOSTILE_CREEPS, range ?? 5).filter(
             creep => !this.getAllies().includes(creep.owner.username)
         ).length == 0
     }
 
     static getAllies() {
-        return Memory.allies || []
+        return Memory.allies ?? []
     }
 }

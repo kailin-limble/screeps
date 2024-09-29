@@ -2,14 +2,15 @@ import { Utils } from './utils';
 
 export class TowerOperator {
 
+    room: Room;
     constructor(room) {
         this.room = room
     }
 
     runTowers() {
-        let towers = this.room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
+        let towers = this.room.find<StructureTower>(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
         towers.sort((a, b) => {
-            b.store[RESOURCE_ENERGY] - a.store[RESOURCE_ENERGY]
+            return b.store[RESOURCE_ENERGY] - a.store[RESOURCE_ENERGY]
         })
 
         if(towers.length === 0) {
@@ -20,7 +21,7 @@ export class TowerOperator {
             filter: (creep) => !Utils.getAllies().includes(creep.owner.username)
         });
         hostilesByHits.sort((a, b) => {
-            a.hits - b.hits
+            return a.hits - b.hits
         })
 
         if( towers[Math.floor(towers.length/2)].store[RESOURCE_ENERGY] >= 10 && hostilesByHits.length > 0) {

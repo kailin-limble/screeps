@@ -2,45 +2,48 @@ import { Utils } from './utils';
 
 export class Spawner {
 
-    constructor(room, roomData) {
-    
-        this.MODELS = {
-            WORKER: [WORK, CARRY, MOVE],
-            CLAIMER: [CLAIM, MOVE],
-            TRUCK: [CARRY, MOVE, CARRY, MOVE],
-            RANGE: [TOUGH, RANGED_ATTACK, MOVE],
-            MELEE: [TOUGH, TOUGH, ATTACK, MOVE, ATTACK, MOVE],
-            MEDIC: [TOUGH, MOVE, HEAL, HEAL, HEAL, MOVE],
-        }
-        this.CHAMPIONS = {
-            RANGE: [
-                TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, 
-                MOVE, MOVE, MOVE, MOVE, RANGED_ATTACK, MOVE, 
-                RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
-                RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
-                RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
-                RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
-            ],
-            MELEE: [
-                TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, 
-                MOVE, MOVE, MOVE, MOVE, ATTACK, MOVE, 
-                ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
-                ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
-                ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
-                ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
-            ],
-            MEDIC: [
-                TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, 
-                MOVE, MOVE, MOVE, MOVE, HEAL, MOVE, 
-                HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, 
-                HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE,
-                HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, 
-                HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE
-            ],
-        }
-        this.ENERGY = 3000 // energy per source per 300 tick cycle
-        this.MINING_RATE = 150 // average energy mined per cycle per 1 work body part
+    MODELS = {
+        WORKER: [WORK, CARRY, MOVE],
+        CLAIMER: [CLAIM, MOVE],
+        TRUCK: [CARRY, MOVE, CARRY, MOVE],
+        RANGE: [TOUGH, RANGED_ATTACK, MOVE],
+        MELEE: [TOUGH, TOUGH, ATTACK, MOVE, ATTACK, MOVE],
+        MEDIC: [TOUGH, MOVE, HEAL, HEAL, HEAL, MOVE],
+    }
+    CHAMPIONS = {
+        RANGE: [
+            TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, 
+            MOVE, MOVE, MOVE, MOVE, RANGED_ATTACK, MOVE, 
+            RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
+            RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
+            RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
+            RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, RANGED_ATTACK, RANGED_ATTACK, MOVE, 
+        ],
+        MELEE: [
+            TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, 
+            MOVE, MOVE, MOVE, MOVE, ATTACK, MOVE, 
+            ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
+            ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
+            ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
+            ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, ATTACK, ATTACK, MOVE, 
+        ],
+        MEDIC: [
+            TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, 
+            MOVE, MOVE, MOVE, MOVE, HEAL, MOVE, 
+            HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, 
+            HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE,
+            HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, 
+            HEAL, HEAL, MOVE, HEAL, HEAL, MOVE, HEAL, HEAL, MOVE
+        ],
+    }
+    ENERGY = 3000 // energy per source per 300 tick cycle
+    MINING_RATE = 150 // average energy mined per cycle per 1 work body part
 
+    room: Room;
+    spawn: StructureSpawn;
+    roomData: any;
+
+    constructor(room, roomData) {
         this.room = room
         this.spawn = room.find(FIND_MY_SPAWNS).find(spawn => spawn.spawning == null)
         this.roomData = roomData
@@ -48,7 +51,10 @@ export class Spawner {
 
     getOptimalWorkForce() {
         if(this.room.memory.sources.count == null || this.room.memory.sources.count == 0) {
-            return 0
+            return {
+                count: 0,
+                cost: 0
+            }
         }
 
         const singleWorkerCost = this.getSpawnCost(this.MODELS.WORKER)
@@ -70,10 +76,10 @@ export class Spawner {
             cost: optimalWorkerCost
         }
     }
-    
+
     getArmyForceSize() {
         if(Memory.securityAction == 'runInvade') {
-            return 3 * (Memory.viableRoomsCount || 1)
+            return 3 * (Memory.viableRoomsCount ?? 1)
         }
         return 1
     }
@@ -178,13 +184,13 @@ export class Spawner {
             ((this.roomData.creepsByRole.trucks.length + 1) / ((Memory.securityAction == 'runInvade' && storage != null || links.length >= 2 ? 2 : 0) + 1))
         ) * 0.50
         spawnPriority.range.priority = (1 - 
-            (((armyCountToUse.RANGE || 0) + 1.5) / (armyForceSize + rangerReinforcementCount + 1))
+            (((armyCountToUse.RANGE ?? 0) + 1.5) / (armyForceSize + rangerReinforcementCount + 1))
         ) * 0.30
         spawnPriority.melee.priority = (1 - 
-            (((armyCountToUse.MELEE || 0) + 1.5) / (armyForceSize + 1))
+            (((armyCountToUse.MELEE ?? 0) + 1.5) / (armyForceSize + 1))
         ) * 0.25
         spawnPriority.medic.priority = (1 - 
-            (((armyCountToUse.MEDIC || 0) + 1.5) / ((Memory.securityAction == 'runInvade' ? armyForceSize : 0) + 1))
+            (((armyCountToUse.MEDIC ?? 0) + 1.5) / ((Memory.securityAction == 'runInvade' ? armyForceSize : 0) + 1))
         ) * 0.20
 
         return spawnPriority
@@ -223,13 +229,13 @@ export class Spawner {
         return biggestModel
     }
 
-    spawnSmallestCreepOfModel(model, memory) {
-        let name = `${this.room.name || ''}-${memory.model || ''}-${memory.role || ''}-${String(Game.time % 1000000000).padStart(9, '0')}`
-        this.spawn.spawnCreep(model, name, {memory: {memory}});
+    spawnSmallestCreepOfModel(model, memory: CreepMemory) {
+        let name = `${this.room.name ?? ''}-${memory.model ?? ''}-${memory.role ?? ''}-${String(Game.time % 1000000000).padStart(9, '0')}`
+        this.spawn.spawnCreep(model, name, {memory: memory});
     }
 
-    spawnBiggestCreepOfModel(model, memory, maxEnergy) {
-        let name = `${this.room.name || ''}-${memory.model || ''}-${memory.role || ''}-${String(Game.time % 1000000000).padStart(9, '0')}`
+    spawnBiggestCreepOfModel(model, memory, maxEnergy?: number) {
+        let name = `${this.room.name ?? ''}-${memory.model ?? ''}-${memory.role ?? ''}-${String(Game.time % 1000000000).padStart(9, '0')}`
         if(
             this.CHAMPIONS[memory.model] != null && 
             this.getSpawnCost(this.CHAMPIONS[memory.model]) <= this.room.energyCapacityAvailable

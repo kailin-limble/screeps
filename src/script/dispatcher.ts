@@ -2,6 +2,7 @@ import { MyCreep, Harvester, Upgrader, Builder, Claimer, Truck, Security, Medic 
 
 export class Dispatcher {
 
+    roomData: any;
     constructor(roomData) {
         this.roomData = roomData
     }

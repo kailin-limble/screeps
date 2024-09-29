@@ -1,0 +1,6 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "lib": ["es2018"]
+    }
+}

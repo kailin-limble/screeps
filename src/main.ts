@@ -1,10 +1,29 @@
-import { Spawner } from './script/spawner.js';
+import { Spawner } from './script/spawner';
 import { Dispatcher } from './script/dispatcher.js';
 import { RoomManager } from './script/room-manager.js';
 import { TowerOperator } from './script/tower-operator.js';
 
-import { Utils } from './script/utils';
+import { Utils } from './script/utils.js';
 import { map } from './script/construction-map.js';
+
+declare global { 
+    interface Memory {
+        securityAction?: string; 
+        viableRoomsCount?: number;
+        creepsModelCounts?: any;
+        allies?: string[];
+    }
+    interface CreepMemory {
+        model?: string; 
+        role?: string;
+        homeRoom?: string;
+        working?: string;
+    }
+    interface RoomMemory {
+        energyHarvested?: number; 
+        sources?: any;
+    }
+}
 
 module.exports.loop = function () {
 
@@ -24,16 +43,16 @@ module.exports.loop = function () {
                 delete Memory.creeps[name];
             }
             else {
-                if(creepsModelCounts[Game.creeps[name].memory.model] == null) {
-                    creepsModelCounts[Game.creeps[name].memory.model] = 0
+                if(creepsModelCounts[Game.creeps[name].memory.model ?? ''] == null) {
+                    creepsModelCounts[Game.creeps[name].memory.model ?? ''] = 0
                 }
-                creepsModelCounts[Game.creeps[name].memory.model]++
+                creepsModelCounts[Game.creeps[name].memory.model ?? '']++
             }
         }
         Memory.creepsModelCounts = creepsModelCounts
 
         for(const roomName in Game.rooms) {
-            if(Game.rooms[roomName].storage != null && Game.rooms[roomName].storage.my) {
+            if(Game.rooms[roomName].storage != null && Game.rooms[roomName]?.storage?.my) {
                 viableRoomsCount++
             }
         }
@@ -51,7 +70,7 @@ module.exports.loop = function () {
         let benchSources = room.find(FIND_SOURCES)
         if(room.memory.sources == null) {
             let mineableSlots = 0
-            let minMineableSlot = null
+            let minMineableSlot: number | undefined
             for(const benchSource of benchSources) {
                 let slots = Utils.countAdjacentWalkables(benchSource)
                 mineableSlots += slots
@@ -107,7 +126,7 @@ module.exports.loop = function () {
         // init structures
         for(let structure in map[roomName]) {
             for(let level in map[roomName][structure]) {
-                if(Number(level) <= room.controller.level) {
+                if(Number(level) <= (room.controller?.level ?? 0)) {
                     for(let location of map[roomName][structure][level]) {
                         room.createConstructionSite(location[0], location[1], structure)
                     }
@@ -130,7 +149,7 @@ module.exports.loop = function () {
         roomManager.runRoomActions()
 
         // operate towers
-        const towerOperator = new TowerOperator(room, roomData)
+        const towerOperator = new TowerOperator(room)
         towerOperator.runTowers()
     }
 }
