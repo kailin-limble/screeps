@@ -16,7 +16,7 @@ export class Harvester extends Worker {
                 return;
             }
 
-            let links = this.room.find(FIND_MY_STRUCTURES, {
+            let links = this.room.find<StructureLink>(FIND_MY_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_LINK)
                 }
@@ -80,8 +80,8 @@ export class Harvester extends Worker {
 	    }
 	}
 
-    depositeToLink(links) {
-        let closestLink = this.pos.findClosestByRange(links, 3);
+    depositeToLink(links: StructureLink[]) {
+        let closestLink = this.pos.findClosestByRange<StructureLink>(links);
         if(this.pos.findPathTo(closestLink).length <= 2) {
             if(this.transfer(closestLink, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 this.moveTo(closestLink, {reusePath: 5, visualizePathStyle: {stroke: '#ffffff'}})

@@ -1,8 +1,13 @@
-import { MyCreep, Harvester, Upgrader, Builder, Claimer, Truck, Security, Medic } from './roles/index.js';
+import { MyCreep, Harvester, Upgrader, Builder, Claimer, Truck, Security, Medic } from './roles/index';
 
 export class Dispatcher {
 
-    roomData: any;
+    roomData: {
+        creeps: Creep[];
+        creepsByRole: {
+            [k: string]: Creep[];
+        };
+    };
     constructor(roomData) {
         this.roomData = roomData
     }
@@ -10,12 +15,12 @@ export class Dispatcher {
     dispatchRolesToCreeps() {
         let hasTruckDepositor = false
         for(var name in this.roomData.creeps) {
-            var creep = this.roomData.creeps[name];
+            var creep = this.roomData.creeps[name] as MyCreep;
             creep.populateRoleActions = MyCreep.prototype.populateRoleActions.bind(creep)
 
             switch (creep.memory.role) {
                 case 'harvester':
-                    creep.populateRoleActions(Harvester)
+                    creep.populateRoleActions(Harvester);
                     creep.run()
                     break;
                 case 'upgrader':
@@ -32,15 +37,16 @@ export class Dispatcher {
                     break;
                 case 'truck':
                     creep.populateRoleActions(Truck)
+                    let creepTruck = (creep as Truck)
                     
-                    let links = creep.room.find(FIND_MY_STRUCTURES, {
+                    let links = creepTruck.room.find(FIND_MY_STRUCTURES, {
                         filter: (structure) => {
                             return structure.structureType == STRUCTURE_LINK
                         }
                     })
                     if(links.length >= 2) {
                         if(hasTruckDepositor) {
-                            creep.convey()
+                            creepTruck.convey()
                         }
                         else {
                             creep.run();
@@ -48,13 +54,14 @@ export class Dispatcher {
                         }
                     }
                     else {
-                        creep.run()
+                        creepTruck.run()
                     }
                     break;
                 case 'security':
                     creep.populateRoleActions(Security)
+                    let creepSecurity = (creep as Security)
                     if(Memory.securityAction == null) {
-                        creep.runGuard()
+                        creepSecurity.runGuard()
                     }
                     else {
                         try{
@@ -62,14 +69,15 @@ export class Dispatcher {
                         }
                         catch {
                             console.log(`The security action ${Memory.securityAction} is not defined. Defaulting to runGuard`)
-                            creep.runGuard()
+                            creepSecurity.runGuard()
                         }
                     }
                     break;
                 case 'medic':
                     creep.populateRoleActions(Medic)
+                    let creepMedic = (creep as Medic)
                     if(Memory.securityAction == null) {
-                        creep.runGuard()
+                        creepMedic.runGuard()
                     }
                     else {
                         try{
@@ -77,7 +85,7 @@ export class Dispatcher {
                         }
                         catch {
                             console.log(`The security action ${Memory.securityAction} is not defined. Defaulting to runGuard`)
-                            creep.runGuard()
+                            creepMedic.runGuard()
                         }
                     }
                     break;

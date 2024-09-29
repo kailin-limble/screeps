@@ -2,7 +2,7 @@ import { MyCreep } from './role.my-creep';
 import { Utils } from '../utils';
 
 // abstract
-export class Worker extends MyCreep {
+export abstract class Worker extends MyCreep {
 
     smartHarvest() {
         var sources = this.room.find(FIND_SOURCES_ACTIVE);

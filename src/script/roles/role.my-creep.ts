@@ -1,9 +1,7 @@
 // abstract
 export class MyCreep extends Creep {
 
-    constructor() {}
-
-    populateRoleActions(roleClass) {
+    populateRoleActions(roleClass: {name: string; prototype: any}) {
         if(roleClass.name == 'MyCreep') {
             return;
         }
@@ -15,5 +13,9 @@ export class MyCreep extends Creep {
                 this[name] = roleClass.prototype[name]
             }
         }
+    }
+
+    run() {
+        
     }
 }

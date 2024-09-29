@@ -23,8 +23,10 @@ export class Builder extends Worker {
 			}
 			
 	        var myStructures = this.room.find(FIND_MY_STRUCTURES);
-	        var walls = this.room.find(FIND_STRUCTURES, {filter: (structure) => [STRUCTURE_WALL, STRUCTURE_ROAD].includes(structure.structureType)});
-	        var repairTargets = myStructures.concat(walls).filter((target) => (target.hits || 0) < (target.hitsMax || 0))
+	        var walls = this.room.find(FIND_STRUCTURES, {
+				filter: (structure) => ([STRUCTURE_WALL, STRUCTURE_ROAD] as StructureConstant[]).includes(structure.structureType)
+			});
+	        var repairTargets = walls.concat(myStructures).filter((target) => (target.hits || 0) < (target.hitsMax || 0))
 			
 	        var repairTargetsPriority0 = []
 	        var repairTargetsPriority1 = []
@@ -132,15 +134,15 @@ export class Builder extends Worker {
 	}
 
 	storeRepairAction(storeRepairAction) {
-		this.memory['storeRepairAction'] = {
+		this.memory.storedAction = {
 			...storeRepairAction,
-			ticks: Game.time + storeRepairAction.ticks
+			until: Game.time + storeRepairAction.ticks
 		}
 	}
 
 	performStoredRepairAction() {
-		if(this.memory.storeRepairAction != null && Game.time < (this.memory.storeRepairAction.ticks || 0)) {
-			const target = Game.getObjectById(this.memory.storeRepairAction.targetId);
+		if(this.memory.storedAction != null && Game.time < (this.memory.storedAction.until ?? 0)) {
+			const target = Game.getObjectById<Structure>(this.memory.storedAction.targetId);
 			if(target.hits < target.hitsMax) {
 				const returnCode = this.repair(target)
 				if(returnCode == OK) {
@@ -149,7 +151,7 @@ export class Builder extends Worker {
 				}
 			}
 		}
-		this.memory.storeRepairAction = undefined
+		this.memory.storedAction = undefined
 		return false
 	}
 };

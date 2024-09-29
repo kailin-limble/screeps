@@ -64,12 +64,12 @@ export class Utils {
         return (road != null || obstacle == null) && obstacleCreep == null;
     }
 
-    static isPosOnRoomEdge(pos) {
+    static isPosOnRoomEdge(pos: RoomPosition) {
         return pos.x == 0 || pos.x == 49 || pos.y == 0 || pos.y == 49;
     }
 
-    static isSafeLocation(pos, range) {
-        return pos.findInRange(FIND_HOSTILE_CREEPS, range ?? 5).filter(
+    static isSafeLocation(pos: RoomPosition, range: number = 5) {
+        return pos.findInRange(FIND_HOSTILE_CREEPS, range).filter(
             creep => !this.getAllies().includes(creep.owner.username)
         ).length == 0
     }

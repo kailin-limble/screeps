@@ -3,14 +3,14 @@ import { Worker } from './role.worker';
 export class Truck extends Worker {
 
     run() {
-        if(this.memory.trucking && this.store[RESOURCE_ENERGY] == 0) {
-            this.memory.trucking = false;
+        if(this.memory.working && this.store[RESOURCE_ENERGY] == 0) {
+            this.memory.working = false;
 	    }
-	    if(!this.memory.trucking && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 35)) {
-	        this.memory.trucking = true;
+	    if(!this.memory.working && (this.store.getFreeCapacity() == 0 || this.ticksToLive <= 35)) {
+	        this.memory.working = true;
 	    }
 
-	    if(this.memory.trucking) {
+	    if(this.memory.working) {
             if(!this.isInHomeRoom()) {
                 this.returnToHomeRoom()
                 return;
@@ -52,11 +52,11 @@ export class Truck extends Worker {
 	}
 
     convey() {
-        if(this.memory.trucking && this.store[RESOURCE_ENERGY] == 0) {
-            this.memory.trucking = false;
+        if(this.memory.working && this.store[RESOURCE_ENERGY] == 0) {
+            this.memory.working = false;
 	    }
-	    if(!this.memory.trucking && (this.store[RESOURCE_ENERGY] > 0 || this.ticksToLive <= 35)) {
-	        this.memory.trucking = true;
+	    if(!this.memory.working && (this.store[RESOURCE_ENERGY] > 0 || this.ticksToLive <= 35)) {
+	        this.memory.working = true;
 	    }
 
         let storages = this.room.find(FIND_MY_STRUCTURES, {
@@ -70,7 +70,7 @@ export class Truck extends Worker {
         }
         let storage = storages[0]
 
-	    if(this.memory.trucking) {
+	    if(this.memory.working) {
             if(!this.isInHomeRoom()) {
                 this.returnToHomeRoom()
                 return;
@@ -86,7 +86,7 @@ export class Truck extends Worker {
             const links = this.room.find(FIND_MY_STRUCTURES, {
                 filter: (structure) => {
                     return structure.structureType == STRUCTURE_LINK &&
-                            structure.store[RESOURCE_ENERGY] > structure.store.getCapacity()/2 &&
+                            structure.store[RESOURCE_ENERGY] > (structure.store.getCapacity() ?? 0)/2 &&
                             structure.pos.inRangeTo(storage.pos, 2)
                 }
             })
@@ -100,7 +100,7 @@ export class Truck extends Worker {
             else {
                 let drops = this.pos.findInRange(FIND_DROPPED_RESOURCES, 3)
                 if(drops.length > 0) {
-                    if(this.pickup(drops[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    if(this.pickup(drops[0]) == ERR_NOT_IN_RANGE) {
                         this.moveTo(drops[0])
                     }
                 }

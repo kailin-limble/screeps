@@ -1,9 +1,9 @@
 import { Spawner } from './script/spawner';
-import { Dispatcher } from './script/dispatcher.js';
-import { RoomManager } from './script/room-manager.js';
-import { TowerOperator } from './script/tower-operator.js';
+import { Dispatcher } from './script/dispatcher';
+import { RoomManager } from './script/room-manager';
+import { TowerOperator } from './script/tower-operator';
 
-import { Utils } from './script/utils.js';
+import { Utils } from './script/utils';
 import { map } from './script/construction-map.js';
 
 declare global { 
@@ -17,7 +17,17 @@ declare global {
         model?: string; 
         role?: string;
         homeRoom?: string;
-        working?: string;
+        working?: boolean;
+        storedAction?: {
+            action: string;
+            targetId: string;
+            until: number;
+        };
+        dest?: {
+            x: number;
+            y: number;
+            roomName: string;
+        }
     }
     interface RoomMemory {
         energyHarvested?: number; 

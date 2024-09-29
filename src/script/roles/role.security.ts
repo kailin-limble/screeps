@@ -104,7 +104,7 @@ export class Security extends MyCreep {
             return this.attack(hostile)
         }
         if(this.pos.getRangeTo(hostile) == 1) {
-            return this.rangedMassAttack(hostile)
+            return this.rangedMassAttack()
         }
         return this.rangedAttack(hostile)
     }
@@ -117,7 +117,7 @@ export class Security extends MyCreep {
                     structure.pos.findInRange(FIND_SOURCES, 1).length == 0 &&
                     structure.pos.findInRange(FIND_MY_CREEPS, 0).length == 0 &&
                     structure.pos.findInRange(FIND_MY_STRUCTURES, 0).filter(
-                        structure => OBSTACLE_OBJECT_TYPES.includes(structure.structureType)
+                        structure => (OBSTACLE_OBJECT_TYPES as StructureConstant[]).includes(structure.structureType)
                     ).length == 0
             }
         })
