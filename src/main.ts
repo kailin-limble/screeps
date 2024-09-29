@@ -10,7 +10,9 @@ declare global {
     interface Memory {
         securityAction?: string; 
         viableRoomsCount?: number;
-        creepsModelCounts?: any;
+        creepsModelCounts?: {
+            [k: string]: number;
+        };
         allies?: string[];
     }
     interface CreepMemory {
@@ -80,7 +82,7 @@ module.exports.loop = function () {
         let benchSources = room.find(FIND_SOURCES)
         if(room.memory.sources == null) {
             let mineableSlots = 0
-            let minMineableSlot: number | undefined
+            let minMineableSlot = 0
             for(const benchSource of benchSources) {
                 let slots = Utils.countAdjacentWalkables(benchSource)
                 mineableSlots += slots
@@ -94,9 +96,11 @@ module.exports.loop = function () {
                 minMineableSlot: minMineableSlot
             }
         }
-        for(let source of benchSources) {
-            if(source.ticksToRegeneration == 1) {
-                room.memory.energyHarvested += Math.round((3000-source.energy)*(300/299))
+        if(room.controller?.my) {
+            for(let source of benchSources) {
+                if(source.ticksToRegeneration == 1) {
+                    room.memory.energyHarvested += Math.round((3000-source.energy)*(300/299))
+                }
             }
         }
 
