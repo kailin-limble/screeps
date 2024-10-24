@@ -41,7 +41,12 @@ export class Spawner {
 
     room: Room;
     spawn: StructureSpawn;
-    roomData: any;
+    roomData: {
+        creeps: Creep[];
+        creepsByRole: {
+            [k: string]: Creep[];
+        };
+    };;
 
     constructor(room, roomData) {
         this.room = room
@@ -79,20 +84,9 @@ export class Spawner {
 
     getArmyForceSize() {
         if(Memory.securityAction == 'runInvade') {
-            return 3 * (Memory.viableRoomsCount ?? 1)
+            return 3
         }
         return 1
-    }
-    
-    getArmyCountToUse() {
-        if(Memory.securityAction == 'runInvade') {
-            return Memory.creepsModelCounts
-        }
-        return {
-            RANGE: this.roomData.creepsByRole.ranges.length,
-            MELEE: this.roomData.creepsByRole.melees.length, 
-            MEDIC: this.roomData.creepsByRole.medics.length
-        }
     }
 
     getRangerReinforcementCount() {
@@ -113,7 +107,6 @@ export class Spawner {
 
         let optimalWorkForce = this.getOptimalWorkForce()
         let armyForceSize = this.getArmyForceSize()
-        let armyCountToUse = this.getArmyCountToUse()
         let rangerReinforcementCount = this.getRangerReinforcementCount()
         let storage = this.room.find(FIND_MY_STRUCTURES, {
             filter: (structure) => {
@@ -153,16 +146,16 @@ export class Spawner {
                 priority: 0,
                 action: () => this.spawnBiggestCreepOfModel(
                     this.MODELS.TRUCK, {model: 'TRUCK', role: 'truck', homeRoom: this.room.name},
-                    800
+                    400
                 )
             },
             range: {
                 priority: 0,
-                action: () => this.spawnBiggestCreepOfModel(this.MODELS.RANGE, {model: 'RANGE', role: 'security'})
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.RANGE, {model: 'RANGE', role: 'range'})
             },
             melee: {
                 priority: 0,
-                action: () => this.spawnBiggestCreepOfModel(this.MODELS.MELEE, {model: 'MELEE', role: 'security'})
+                action: () => this.spawnBiggestCreepOfModel(this.MODELS.MELEE, {model: 'MELEE', role: 'melee'})
             },
             medic: {
                 priority: 0,
@@ -184,13 +177,13 @@ export class Spawner {
             ((this.roomData.creepsByRole.trucks.length + 1) / ((Memory.securityAction == 'runInvade' && storage != null || links.length >= 2 ? 2 : 0) + 1))
         ) * 0.50
         spawnPriority.range.priority = (1 - 
-            (((armyCountToUse.RANGE ?? 0) + 1.5) / (armyForceSize + rangerReinforcementCount + 1))
+            ((this.roomData.creepsByRole.ranges.length + 1.5) / (armyForceSize + rangerReinforcementCount + 1))
         ) * 0.30
         spawnPriority.melee.priority = (1 - 
-            (((armyCountToUse.MELEE ?? 0) + 1.5) / (armyForceSize + 1))
+            ((this.roomData.creepsByRole.melees.length + 1.5) / (armyForceSize + 1))
         ) * 0.25
         spawnPriority.medic.priority = (1 - 
-            (((armyCountToUse.MEDIC ?? 0) + 1.5) / ((Memory.securityAction == 'runInvade' ? armyForceSize : 0) + 1))
+            ((this.roomData.creepsByRole.medics.length + 1.5) / ((Memory.securityAction == 'runInvade' ? armyForceSize : 0) + 1))
         ) * 0.20
 
         return spawnPriority

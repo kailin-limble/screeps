@@ -124,12 +124,13 @@ export class Builder extends Worker {
 	    }
 	}
 
-	costCallbackAvoidRamparts(roomName, costMatrix) {
+	costCallbackAvoidRamparts(roomName: string, costMatrix: CostMatrix) {
 		const myRamparts = this.room.find(FIND_MY_STRUCTURES, {
 			filter: (structure) => { return structure.structureType == STRUCTURE_RAMPART }
 		})
 		for(const rampart of myRamparts) {
-			costMatrix.set(rampart.pos.x, rampart.pos.y, 25)
+			const newCost = costMatrix.get(rampart.pos.x, rampart.pos.y) * 10
+			costMatrix.set(rampart.pos.x, rampart.pos.y, newCost)
 		}
 	}
 

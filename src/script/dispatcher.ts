@@ -1,4 +1,4 @@
-import { MyCreep, Harvester, Upgrader, Builder, Claimer, Truck, Security, Medic } from './roles/index';
+import { MyCreep, Harvester, Upgrader, Builder, Claimer, Truck, Melee, Range, Medic } from './roles/index';
 
 export class Dispatcher {
 
@@ -14,26 +14,23 @@ export class Dispatcher {
 
     dispatchRolesToCreeps() {
         let hasTruckDepositor = false
-        for(var name in this.roomData.creeps) {
-            var creep = this.roomData.creeps[name] as MyCreep;
+        for(let baseCreep of this.roomData.creeps) {
+            let creep = baseCreep as MyCreep;
+            let doSpecialRun = false;
             creep.populateRoleActions = MyCreep.prototype.populateRoleActions.bind(creep)
 
             switch (creep.memory.role) {
                 case 'harvester':
                     creep.populateRoleActions(Harvester);
-                    creep.run()
                     break;
                 case 'upgrader':
                     creep.populateRoleActions(Memory.securityAction == 'runInvade' ? Harvester : Upgrader)
-                    creep.run()
                     break;
                 case 'builder':
                     creep.populateRoleActions(Builder)
-                    creep.run()
                     break;
                 case 'claimer':
                     creep.populateRoleActions(Claimer)
-                    creep.run()
                     break;
                 case 'truck':
                     creep.populateRoleActions(Truck)
@@ -47,48 +44,52 @@ export class Dispatcher {
                     if(links.length >= 2) {
                         if(hasTruckDepositor) {
                             creepTruck.convey()
+                            doSpecialRun = true
                         }
                         else {
-                            creep.run();
                             hasTruckDepositor = true
                         }
                     }
-                    else {
-                        creepTruck.run()
-                    }
                     break;
-                case 'security':
-                    creep.populateRoleActions(Security)
-                    let creepSecurity = (creep as Security)
-                    if(Memory.securityAction == null) {
-                        creepSecurity.runGuard()
-                    }
-                    else {
+                case 'melee':
+                    creep.populateRoleActions(Melee)
+                    if(Memory.securityAction != null) {
                         try{
                             creep[Memory.securityAction]()
+                            doSpecialRun = true
                         }
                         catch {
-                            console.log(`The security action ${Memory.securityAction} is not defined. Defaulting to runGuard`)
-                            creepSecurity.runGuard()
+                            console.log(`The security action ${Memory.securityAction} is not defined. Using default run()`)
+                        }
+                    }
+                    break;
+                case 'range':
+                    creep.populateRoleActions(Range)
+                    if(Memory.securityAction != null) {
+                        try{
+                            creep[Memory.securityAction]()
+                            doSpecialRun = true
+                        }
+                        catch {
+                            console.log(`The security action ${Memory.securityAction} is not defined. Using default run()`)
                         }
                     }
                     break;
                 case 'medic':
                     creep.populateRoleActions(Medic)
-                    let creepMedic = (creep as Medic)
-                    if(Memory.securityAction == null) {
-                        creepMedic.runGuard()
-                    }
-                    else {
+                    if(Memory.securityAction != null) {
                         try{
                             creep[Memory.securityAction]()
+                            doSpecialRun = true
                         }
                         catch {
-                            console.log(`The security action ${Memory.securityAction} is not defined. Defaulting to runGuard`)
-                            creepMedic.runGuard()
+                            console.log(`The security action ${Memory.securityAction} is not defined. Using default run()`)
                         }
                     }
                     break;
+            }
+            if(!doSpecialRun) {
+                creep.run()
             }
         }
     }

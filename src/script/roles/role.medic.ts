@@ -1,7 +1,7 @@
-import { MyCreep } from './role.my-creep';
+import { Security } from './role.security';
 import { Utils } from '../utils';
 
-export class Medic extends MyCreep {
+export class Medic extends Security {
 
     findWeakestFriendlyInRange(range) {
         let hurtFriendlies = this.pos.findInRange(FIND_MY_CREEPS, range, {

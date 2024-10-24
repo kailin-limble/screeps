@@ -1,18 +1,13 @@
 import { Spawner } from './script/spawner';
 import { Dispatcher } from './script/dispatcher';
 import { RoomManager } from './script/room-manager';
-import { TowerOperator } from './script/tower-operator';
 
 import { Utils } from './script/utils';
 import { map } from './script/construction-map.js';
 
 declare global { 
     interface Memory {
-        securityAction?: string; 
-        viableRoomsCount?: number;
-        creepsModelCounts?: {
-            [k: string]: number;
-        };
+        securityAction?: string;
         allies?: string[];
     }
     interface CreepMemory {
@@ -46,30 +41,7 @@ module.exports.loop = function () {
     }
 
     // global loop
-    if(Game.time % 50 == 0) {
-        let creepsModelCounts = {}
-        let viableRoomsCount = 0
-
-        for (const name in Memory.creeps) {
-            if (!(name in Game.creeps)) {
-                delete Memory.creeps[name];
-            }
-            else {
-                if(creepsModelCounts[Game.creeps[name].memory.model ?? ''] == null) {
-                    creepsModelCounts[Game.creeps[name].memory.model ?? ''] = 0
-                }
-                creepsModelCounts[Game.creeps[name].memory.model ?? '']++
-            }
-        }
-        Memory.creepsModelCounts = creepsModelCounts
-
-        for(const roomName in Game.rooms) {
-            if(Game.rooms[roomName].storage != null && Game.rooms[roomName]?.storage?.my) {
-                viableRoomsCount++
-            }
-        }
-        Memory.viableRoomsCount = viableRoomsCount
-    }
+    null;
 
     // main loop
     for(const roomName in Game.rooms) {
@@ -120,13 +92,13 @@ module.exports.loop = function () {
                     filter: { memory: { role: 'truck' } }
                 }),
                 ranges: room.find(FIND_MY_CREEPS, {
-                    filter: { memory: { model: 'RANGE' } }
+                    filter: { memory: { role: 'range' } }
                 }),
                 melees: room.find(FIND_MY_CREEPS, {
-                    filter: { memory: { model: 'MELEE' } }
+                    filter: { memory: { role: 'melee' } }
                 }),
                 medics: room.find(FIND_MY_CREEPS, {
-                    filter: { memory: { model: 'MEDIC' } }
+                    filter: { memory: { role: 'medic' } }
                 }),
             }
         }
@@ -161,9 +133,5 @@ module.exports.loop = function () {
         // room actions
         const roomManager = new RoomManager(room, roomData)
         roomManager.runRoomActions()
-
-        // operate towers
-        const towerOperator = new TowerOperator(room)
-        towerOperator.runTowers()
     }
 }

@@ -6,4 +6,6 @@ export * from "./role.upgrader";
 export * from "./role.claimer";
 export * from "./role.truck";
 export * from "./role.security";
+export * from "./role.melee";
+export * from "./role.range";
 export * from "./role.medic";
