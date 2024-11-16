@@ -87,6 +87,8 @@ export class Dispatcher {
                         }
                     }
                     break;
+                default: 
+                    creep.populateRoleActions(MyCreep)
             }
             if(!doSpecialRun) {
                 creep.run()

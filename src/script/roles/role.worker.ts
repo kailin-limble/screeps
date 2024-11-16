@@ -41,7 +41,7 @@ export abstract class Worker extends MyCreep {
                         structure.store.getUsedCapacity(RESOURCE_ENERGY) > 9999;
             }
         });
-        if(storages.length > 0) {
+        if(storages.length > 0 && this.room.controller?.level <= 8) {
             if(this.withdraw(storages[0], RESOURCE_ENERGY)) {
                 this.moveTo(storages[0], {reusePath: 5, visualizePathStyle: {stroke: '#777777'}})
             }

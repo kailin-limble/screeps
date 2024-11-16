@@ -41,7 +41,13 @@ module.exports.loop = function () {
     }
 
     // global loop
-    null;
+    if(Game.time % 50 == 0) {
+        for (const name in Memory.creeps) {
+            if (!(name in Game.creeps)) {
+                delete Memory.creeps[name];
+            }
+        }
+    }
 
     // main loop
     for(const roomName in Game.rooms) {
