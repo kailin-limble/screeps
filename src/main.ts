@@ -18,7 +18,7 @@ declare global {
         storedAction?: {
             action: string;
             targetId: string;
-            until: number;
+            until?: number;
         };
         dest?: {
             x: number;
@@ -27,8 +27,21 @@ declare global {
         }
     }
     interface RoomMemory {
-        energyHarvested?: number; 
-        sources?: any;
+        operatingMode?: 'starter' | 'efficient' | 'lowCpu';
+        energyHarvested?: number;
+        sources?: SourceData[];
+        externalSources?: SourceData[];
+    }
+
+    interface SourceData {
+        id: string;
+        pos: {
+            x: number;
+            y: number;
+            roomName: string;
+        },
+        harvestMode?: null | 'link' | 'container';
+        mineableSlots: number;
     }
 }
 
@@ -41,7 +54,7 @@ module.exports.loop = function () {
     }
 
     // global loop
-    if(Game.time % 50 == 0) {
+    if(Game.time % BENCH_TICKS == 0) {
         for (const name in Memory.creeps) {
             if (!(name in Game.creeps)) {
                 delete Memory.creeps[name];
@@ -53,32 +66,33 @@ module.exports.loop = function () {
     for(const roomName in Game.rooms) {
         const room = Game.rooms[roomName]
 
-        // benchmark
-        if(room.memory.energyHarvested == null) {
-            room.memory.energyHarvested = 0
-        }
-        let benchSources = room.find(FIND_SOURCES)
-        if(room.memory.sources == null) {
-            let mineableSlots = 0
-            let minMineableSlot = 0
-            for(const benchSource of benchSources) {
-                let slots = Utils.countAdjacentWalkables(benchSource)
-                mineableSlots += slots
-                if(minMineableSlot == null || slots < minMineableSlot) {
-                    minMineableSlot = slots
-                }
+        // room data
+        let sources = room.find(FIND_SOURCES)
+        if(Game.time % BENCH_TICKS == 0) {
+            if(room.memory.energyHarvested == null) {
+                room.memory.energyHarvested = 0
             }
-            room.memory.sources = {
-                count: benchSources.length,
-                mineableSlots: mineableSlots,
-                minMineableSlot: minMineableSlot
-            }
-        }
-        if(room.controller?.my) {
-            for(let source of benchSources) {
-                if(source.ticksToRegeneration == 1) {
-                    room.memory.energyHarvested += Math.round((3000-source.energy)*(300/299))
+
+            room.memory.sources = sources.map(
+                (source) => {
+                    return {
+                        id: source.id,
+                        pos: source.pos,
+                        mineableSlots: Utils.countAdjacentWalkables(source)
+                    }
                 }
+            )
+
+            let links = room.find(FIND_MY_STRUCTURES, {
+                filter: (structure) => {
+                    return structure.structureType == STRUCTURE_LINK
+                }
+            })
+            if(links.length >= 2 && room.storage != null) {
+                room.memory.operatingMode = 'efficient'
+            }
+            else {
+                room.memory.operatingMode = 'starter'
             }
         }
 
@@ -109,9 +123,17 @@ module.exports.loop = function () {
             }
         }
 
+        // benchmark
+        if(room.controller?.my) {
+            for(let source of sources) {
+                if(source.ticksToRegeneration == 1) {
+                    room.memory.energyHarvested = (room.memory.energyHarvested ?? 0) + Math.round((3000-source.energy)*(300/299))
+                }
+            }
+        }
         if(Game.time % BENCH_TICKS == 0 && room.controller != null) {
             console.log(`ROOM ${roomName} | level ${room.controller.level}, ${room.controller.progress} | `,
-                `population ${roomData.creeps.length} | efficiency ~${room.memory.energyHarvested}/${room.memory.sources.count * 3000 * (Game.time/300)}`
+                `population ${roomData.creeps.length} | efficiency ~${room.memory.energyHarvested}/${(room.memory.sources?.length ?? 0) * 3000 * (Game.time/300)}`
             )
         }
 

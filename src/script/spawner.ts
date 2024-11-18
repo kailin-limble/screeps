@@ -9,6 +9,14 @@ export class Spawner {
         RANGE: [TOUGH, RANGED_ATTACK, MOVE],
         MELEE: [TOUGH, TOUGH, ATTACK, MOVE, ATTACK, MOVE],
         MEDIC: [TOUGH, MOVE, HEAL, HEAL, HEAL, MOVE],
+
+        HARVESTER: [CARRY, MOVE, CARRY, MOVE, WORK, WORK, WORK, WORK, WORK, WORK],
+        UPGRADER: [
+            CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, 
+            WORK, WORK, WORK, WORK, WORK, 
+            WORK, WORK, WORK, WORK, WORK, 
+            WORK, WORK, WORK, WORK, WORK
+        ],
     }
     CHAMPIONS = {
         RANGE: [
@@ -55,7 +63,7 @@ export class Spawner {
     }
 
     getOptimalWorkForce() {
-        if(this.room.memory.sources.count == null || this.room.memory.sources.count == 0) {
+        if((this.room.memory.sources?.length ?? 0) == 0) {
             return {
                 count: 0,
                 cost: 0
@@ -65,13 +73,16 @@ export class Spawner {
         const singleWorkerCost = this.getSpawnCost(this.MODELS.WORKER)
         const largestWorkerSize = this.room.energyCapacityAvailable / singleWorkerCost
 
-        let optimalWorkBodyParts = (this.room.memory.sources.count * this.ENERGY) / this.MINING_RATE
-        let optimalWorkerCount = this.room.memory.sources.mineableSlots + (this.room.memory.sources.count * this.room.memory.sources.minMineableSlot)/3
+        let totalMineableSlots = (this.room.memory.sources ?? []).reduce((sum, source) => { return sum + source.mineableSlots}, 0)
+        let minMineableSlot = Math.min(...(this.room.memory.sources ?? []).map((source) => { return source.mineableSlots}))
+
+        let optimalWorkBodyParts = ((this.room.memory.sources?.length ?? 0) * this.ENERGY) / this.MINING_RATE
+        let optimalWorkerCount = totalMineableSlots + ((this.room.memory.sources?.length ?? 0) * minMineableSlot)/3
         let optimalWorkerSize = optimalWorkBodyParts / optimalWorkerCount
 
         if(largestWorkerSize <= optimalWorkerSize) {
             optimalWorkerSize = largestWorkerSize
-            optimalWorkerCount = this.room.memory.sources.mineableSlots * 2
+            optimalWorkerCount = totalMineableSlots * 2
         }
 
         let optimalWorkerCost = optimalWorkerSize * singleWorkerCost
@@ -101,24 +112,20 @@ export class Spawner {
     getSpawnPriority() {
         // always start with a haverster
         if(this.roomData.creepsByRole.harvesters.length == 0) {
-            this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'}, this.room.energyAvailable)
+            this.spawnBiggestCreepOfModel(this.MODELS.WORKER, {model: 'WORKER', role: 'harvester'}, Math.min(this.room.energyAvailable, 1200))
             return null;
         }
 
         let optimalWorkForce = this.getOptimalWorkForce()
         let armyForceSize = this.getArmyForceSize()
         let rangerReinforcementCount = this.getRangerReinforcementCount()
-        let storage = this.room.find(FIND_MY_STRUCTURES, {
-            filter: (structure) => {
-                return structure.structureType == STRUCTURE_STORAGE &&
-                        structure.store[RESOURCE_ENERGY] > 100;
-            }
-        })[0]
-        let links = this.room.find(FIND_MY_STRUCTURES, {
-            filter: (structure) => {
-                return structure.structureType == STRUCTURE_LINK
-            }
-        })
+        let truckCount = 0
+        if(this.room.memory.operatingMode === 'efficient') {
+            truckCount = 2
+        }
+        else if(Memory.securityAction == 'runInvade') {
+            truckCount = 1
+        }
 
         let spawnPriority = {
             workerBuilder: {
@@ -174,8 +181,8 @@ export class Spawner {
             ((this.roomData.creepsByRole.upgraders.length + 1) / (optimalWorkForce.count*0.20 + 1))
         ) * 0.90
         spawnPriority.truck.priority = (1 - 
-            ((this.roomData.creepsByRole.trucks.length + 1) / ((Memory.securityAction == 'runInvade' && storage != null || links.length >= 2 ? 2 : 0) + 1))
-        ) * 0.50
+            ((this.roomData.creepsByRole.trucks.length + 1) / (truckCount + 1))
+        ) * 0.80
         spawnPriority.range.priority = (1 - 
             ((this.roomData.creepsByRole.ranges.length + 1.5) / (armyForceSize + rangerReinforcementCount + 1))
         ) * 0.30
@@ -241,10 +248,20 @@ export class Spawner {
     }
 
     spawnCreeps() {
+        if(this.room.memory.operatingMode == 'starter') {
+            this.spawnCreepsStarterMode()
+        }
+        else if(this.room.memory.operatingMode == 'efficient') {
+            this.spawnCreepsEfficientMode()
+        }
+        this.spawnCreepsStarterMode()
+    }
+
+    spawnCreepsStarterMode() {
         const spawnPriority = this.getSpawnPriority()
 
         if(spawnPriority == null) {
-            return
+            return;
         }
 
         let keyOfHighestPriorityNotZero = Object.keys(spawnPriority).reduce((a, b) => spawnPriority[a].priority > spawnPriority[b].priority ? a : b);
@@ -255,5 +272,9 @@ export class Spawner {
         }
 
         spawnPriority[keyOfHighestPriorityNotZero].action()
+    }
+
+    spawnCreepsEfficientMode() {
+        this.spawnCreepsStarterMode()
     }
 }

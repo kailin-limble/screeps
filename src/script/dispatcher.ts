@@ -35,13 +35,7 @@ export class Dispatcher {
                 case 'truck':
                     creep.populateRoleActions(Truck)
                     let creepTruck = (creep as Truck)
-                    
-                    let links = creepTruck.room.find(FIND_MY_STRUCTURES, {
-                        filter: (structure) => {
-                            return structure.structureType == STRUCTURE_LINK
-                        }
-                    })
-                    if(links.length >= 2) {
+                    if(creepTruck.room.memory.operatingMode === 'efficient') {
                         if(hasTruckDepositor) {
                             creepTruck.convey()
                             doSpecialRun = true

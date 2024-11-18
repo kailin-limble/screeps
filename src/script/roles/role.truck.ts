@@ -35,16 +35,9 @@ export class Truck extends Worker {
             }
         }
         else {
-            const storage = this.room.find(FIND_MY_STRUCTURES, {
-                filter: (structure) => {
-                    return structure.structureType == STRUCTURE_STORAGE &&
-                            structure.store[RESOURCE_ENERGY] > 100;
-                }
-            })[0]
-
-            if(storage != null) {
-                if(this.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(storage)
+            if(this.room.storage != null) {
+                if(this.withdraw(this.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(this.room.storage)
                 }
                 this.say('💰');
             }
@@ -59,16 +52,9 @@ export class Truck extends Worker {
 	        this.memory.working = true;
 	    }
 
-        let storages = this.room.find(FIND_MY_STRUCTURES, {
-            filter: (structure) => {
-                return (structure.structureType == STRUCTURE_STORAGE) &&
-                        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-            }
-        });
-        if(storages.length < 1) {
+        if(this.room.storage == null) {
             return;
         }
-        let storage = storages[0]
 
 	    if(this.memory.working) {
             if(!this.isInHomeRoom()) {
@@ -76,8 +62,8 @@ export class Truck extends Worker {
                 return;
             }
             
-            if(this.transfer(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this.moveTo(storage, {reusePath: 5, visualizePathStyle: {stroke: '#ffffff'}})
+            if(this.transfer(this.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                this.moveTo(this.room.storage, {reusePath: 5, visualizePathStyle: {stroke: '#ffffff'}})
             }
             this.say('📥');
             return;
@@ -87,7 +73,7 @@ export class Truck extends Worker {
                 filter: (structure) => {
                     return structure.structureType == STRUCTURE_LINK &&
                             structure.store[RESOURCE_ENERGY] > (structure.store.getCapacity() ?? 0)/2 &&
-                            structure.pos.inRangeTo(storage.pos, 2)
+                            structure.pos.inRangeTo(this.room.storage.pos, 2)
                 }
             })
 

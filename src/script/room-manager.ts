@@ -21,20 +21,14 @@ export class RoomManager {
             }
         });
 
-        let storages = this.room.find<StructureStorage>(FIND_MY_STRUCTURES, {
-            filter: (structure) => {
-                return structure.structureType == STRUCTURE_STORAGE
-            }
-        });
-
-        if(links.length < 2 || storages.length < 1) {
+        if(links.length < 2 || this.room.storage == null) {
             return;
         }
 
         let storageLinks = this.room.find<StructureLink>(FIND_MY_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_LINK &&
-                    structure.pos.inRangeTo(storages[0].pos, 2)
+                    structure.pos.inRangeTo(this.room.storage.pos, 2)
                 )
             }
         });

@@ -35,15 +35,9 @@ export abstract class Worker extends MyCreep {
             }
         }
 
-        let storages = this.room.find(FIND_MY_STRUCTURES, {
-            filter: (structure) => {
-                return (structure.structureType == STRUCTURE_STORAGE) &&
-                        structure.store.getUsedCapacity(RESOURCE_ENERGY) > 9999;
-            }
-        });
-        if(storages.length > 0 && this.room.controller?.level <= 8) {
-            if(this.withdraw(storages[0], RESOURCE_ENERGY)) {
-                this.moveTo(storages[0], {reusePath: 5, visualizePathStyle: {stroke: '#777777'}})
+        if((this.room.storage?.store[RESOURCE_ENERGY] ?? 0) > 999 && this.room.controller?.level <= 8) {
+            if(this.withdraw(this.room.storage, RESOURCE_ENERGY)) {
+                this.moveTo(this.room.storage, {reusePath: 5, visualizePathStyle: {stroke: '#777777'}})
             }
         }
     }

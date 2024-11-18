@@ -16,13 +16,12 @@ export class Harvester extends Worker {
                 return;
             }
 
-            let links = this.room.find<StructureLink>(FIND_MY_STRUCTURES, {
-                filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_LINK)
-                }
-            });
-            if(links.length >= 2) {
-                if(this.depositeToLink(links)) {
+			if(this.performStoredHarvestAction()) {
+				return;
+			}
+
+            if(this.room.memory.operatingMode === 'efficient') {
+                if(this.depositeToLink()) {
                     return;
                 }
             }
@@ -58,16 +57,9 @@ export class Harvester extends Worker {
                 return;
             }
             
-            var storages = this.room.find(FIND_MY_STRUCTURES, {
-                filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_STORAGE) &&
-                            structure.store.getFreeCapacity(RESOURCE_ENERGY) > 750000;
-                }
-            });
-            if(storages.length > 0) {
-                let storage = this.pos.findClosestByPath(storages)
-                if(this.transfer(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(storage, {reusePath: 5, visualizePathStyle: {stroke: '#ffffff'}})
+            if(this.room.storage != null) {
+                if(this.transfer(this.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(this.room.storage, {reusePath: 5, visualizePathStyle: {stroke: '#ffffff'}})
                 }
                 this.say('📥');
                 return;
@@ -80,13 +72,42 @@ export class Harvester extends Worker {
 	    }
 	}
 
-    depositeToLink(links: StructureLink[]) {
-        let closestLink = this.pos.findClosestByRange<StructureLink>(links);
-        if(this.pos.findPathTo(closestLink).length <= 2) {
-            if(this.transfer(closestLink, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this.moveTo(closestLink, {reusePath: 5, visualizePathStyle: {stroke: '#ffffff'}})
+    depositeToLink() {
+        let linksInRange = this.pos.findInRange<StructureLink>(FIND_MY_STRUCTURES, 2, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_LINK) &&
+                    (structure.store.getFreeCapacity(RESOURCE_ENERGY) ?? 0) > 0
             }
-            return true;
+        });
+        let closestLink = this.pos.findClosestByPath<StructureLink>(linksInRange);
+        if(closestLink == null) {
+            return false;
         }
+        if(this.transfer(closestLink, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            this.moveTo(closestLink, {reusePath: 5, visualizePathStyle: {stroke: '#ffffff'}})
+        }
+        return true;
     }
+    
+	storeHarvestAction(storeHarvestAction) {
+		this.memory.storedAction = storeHarvestAction
+	}
+
+	performStoredHarvestAction() {
+		if(this.memory.storedAction != null && Game.time < (this.memory.storedAction.until ?? 0)) {
+			const source = Game.getObjectById<Source>(this.memory.storedAction.targetId);
+            if(source) {
+                if(this.harvest(source) === ERR_NOT_IN_RANGE) {
+                    this.moveTo(source)
+                }
+            }
+            else {
+                let sourceLocation = Game.rooms[this.memory.homeRoom].memory.externalSources.find(source => source.id === this.memory.storedAction.targetId)
+                this.moveTo(new RoomPosition(sourceLocation.pos.x, sourceLocation.pos.y, sourceLocation.pos.roomName))
+            }
+			return true;
+		}
+		this.memory.storedAction = undefined
+		return false
+	}
 };
